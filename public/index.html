@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landing Kit Generator – Competitor link → Brief, Copy, Prompts, Checklist</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1f2430;--muted:#6b7280;--line:#e6e2d9;--accent:#eba628;--accent-d:#c98a15;--green:#197C16;--red:#c0392b;--blue:#0f2d53}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+header{background:var(--blue);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}
+header p{margin:0;opacity:.8;font-size:13px}
+.wrap{display:grid;grid-template-columns:400px minmax(0,1fr);gap:18px;padding:18px;max-width:1600px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.card h2 .n{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px}
+label{display:block;font-weight:600;font-size:12px;margin:10px 0 4px;color:#374151}
+label small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=url],select,textarea{width:100%;padding:8px 10px;border:1px solid #d6d1c4;border-radius:8px;font:inherit;background:#fff}
+textarea{min-height:64px;resize:vertical}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;font:inherit;font-weight:700}
+.btn:hover{background:var(--accent-d)}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid #d6d1c4}
+.btn.sec:hover{background:#f3f0e8}
+.btn:disabled{opacity:.6;cursor:wait}
+.big{width:100%;padding:13px;font-size:15px;margin-top:12px}
+details{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+details summary{cursor:pointer;font-weight:700;font-size:13px}
+.status{margin-top:10px;font-size:13px;padding:8px 10px;border-radius:8px;background:#f3f0e8;display:none;white-space:pre-wrap}
+.status.ok{background:#e9f6ea;color:#14532d;display:block}
+.status.err{background:#fdecea;color:#7f1d1d;display:block}
+.status.busy{display:block}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{border:1px solid #d6d1c4;background:#fff;border-radius:20px;padding:7px 14px;cursor:pointer;font-weight:600;font-size:13px}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tab .cnt{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px;margin-left:5px;font-size:11px}
+.out-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.out-head h3{margin:0;font-size:15px;flex:1}
+.out-head .meta{color:var(--muted);font-size:12px}
+pre.out{white-space:pre-wrap;word-wrap:break-word;background:#fbfaf7;border:1px solid var(--line);border-radius:10px;padding:14px;max-height:72vh;overflow:auto;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:0}
+.empty{color:var(--muted);text-align:center;padding:60px 20px}
+.empty b{color:var(--ink)}
+.imggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.imgc{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.imgc .ph{aspect-ratio:1/1;background:#eee center/contain no-repeat;display:block}
+.imgc .ph img{width:100%;height:100%;object-fit:contain;background:#f3f3f3}
+.imgc .info{padding:8px;font-size:11px;color:var(--muted);word-break:break-all;flex:1}
+.imgc select{margin:0 8px 8px;width:calc(100% - 16px);font-size:12px;padding:5px}
+.imgc.ui{opacity:.55}
+.pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700;background:#eef3ef;color:var(--green)}
+.pill.warn{background:#fdecea;color:var(--red)}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.order-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center;font-size:12px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:20px;font-weight:600;opacity:0;transition:.2s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+@media(max-width:980px){.wrap{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){.wrap{padding:10px;gap:12px}.row{grid-template-columns:minmax(0,1fr)}.wrap>*{min-width:0}input,select,textarea{min-width:0;max-width:100%}pre.out{font-size:11.5px}}
+.hint{background:#fff8e6;border:1px solid #f0d28a;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;margin:0 0 12px}.hint.ok{background:#eef8ef;border-color:#b5dcb9}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🧰 Landing Kit Generator</h1>
+    <p>Paste a competitor link → get the brief, copy template, image prompts and checklist for your landing page template, ready to paste into any AI chat.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ============ LEFT: INPUTS ============ -->
+  <div>
+    <div class="card">
+      <h2><span class="n">1</span>Competitor & product</h2>
+      <label>Competitor page URL</label>
+      <input type="url" id="competitorUrl" placeholder="https://competitor.com/product-page">
+      <label>Your product name <small>(new brand, e.g. Erovyn™)</small></label>
+      <input type="text" id="productName" placeholder="e.g. Erovyn™">
+      <div class="row">
+        <div>
+          <label>Product form</label>
+          <select id="productForm">
+            <option value="auto">Auto-detect</option>
+            <option value="cream">Cream / gel (tube)</option>
+            <option value="oil">Oil (bottle)</option>
+            <option value="serum">Serum / drops (dropper bottle)</option>
+            <option value="capsules">Capsules / tablets (jar)</option>
+            <option value="gummies">Gummies (jar)</option>
+            <option value="spray">Spray (spray bottle)</option>
+            <option value="patches">Patches (box)</option>
+            <option value="powder">Powder (pouch / jar)</option>
+            <option value="device">Device (box)</option>
+            <option value="material">Moldable / thermoplastic material (tube)</option>
+            <option value="strips">Strips (box / pouch)</option>
+          </select>
+        </div>
+        <div>
+          <label>Text on the pack <small>(subtitle)</small></label>
+          <input type="text" id="packSubtitle" placeholder="e.g. Männer Regenerations-Creme">
+        </div>
+      </div>
+      <label>Packaging description <small>(colours, logo, size)</small></label>
+      <textarea id="packaging" placeholder="e.g. matte black 50 ml tube with gold logo and gold band, white text"></textarea>
+      <div class="row">
+        <div><label>Product category</label><select id="niche">
+          <option value="auto">Auto-detect</option>
+          <option value="intimacy_m">Men's intimacy / potency</option>
+          <option value="dental">Dental / dentures / teeth</option>
+          <option value="pain">Joints / pain / muscles / nerves</option>
+          <option value="skin">Skin / beauty / anti-aging</option>
+          <option value="hair">Hair / beard / scalp</option>
+          <option value="weight">Weight / slimming / metabolism</option>
+          <option value="sleep">Sleep / stress / snoring</option>
+          <option value="feet">Feet / nails / fungus</option>
+          <option value="generic">Other (neutral)</option>
+        </select></div>
+        <div><label>Target customer</label><input type="text" id="audience" placeholder="auto (category + page)"></div>
+      </div>
+      <div class="row">
+        <div><label>Main character / model</label><input type="text" id="model" placeholder="auto (from category)"></div>
+        <div><label>Main problem <small>(optional)</small></label><input type="text" id="problem" placeholder="auto (AI derives it)"></div>
+      </div>
+
+      <details>
+        <summary>Fallbacks: paste page text / image URLs <small>(if the page cannot be fetched)</small></summary>
+        <label>Competitor page text <small>(Ctrl+A → Ctrl+C on their page, paste here)</small></label>
+        <textarea id="manualText" style="min-height:90px"></textarea>
+        <label>Competitor image URLs <small>(one per line, right-click → copy image address)</small></label>
+        <textarea id="manualImages"></textarea>
+      </details>
+
+      <button class="btn big" id="analyzeBtn">🔎 Analyze competitor & generate kit</button>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2><span class="n">2</span>Store & template settings <small style="font-weight:400;color:var(--muted)">(saved in your browser)</small></h2>
+      <label>Template (your landing page structure)</label>
+      <input type="url" id="templateUrl">
+      <div class="row">
+        <div><label>Store domain</label><input type="text" id="storeDomain"></div>
+        <div><label>Support email</label><input type="text" id="supportEmail"></div>
+      </div>
+      <label>Landing page language</label>
+      <select id="language">
+        <option value="de-CH">Swiss High German (de-CH)</option>
+        <option value="de-DE">German – Germany/Austria (de-DE)</option>
+        <option value="fr-CH">Swiss French (fr-CH)</option>
+        <option value="it-CH">Swiss Italian (it-CH)</option>
+        <option value="en-GB">English – UK (en-GB)</option>
+      </select>
+      <label>Prices <small>(price / compare-at)</small></label>
+      <div class="row">
+        <div><input type="text" id="p1" title="1x"></div><div><input type="text" id="p2" title="2x"></div>
+        <div><input type="text" id="p3" title="3x"></div><div><input type="text" id="p5" title="5x"></div>
+      </div>
+      <div class="hint">Format: 1x | 2x | 3x | 5x → "35/70" means price 35, compare-at 70</div>
+      <div class="row3">
+        <div><label>Currency</label><input type="text" id="currency"></div>
+        <div><label>Insurance</label><input type="text" id="insurance"></div>
+        <div><label>Stock left</label><input type="text" id="stock"></div>
+      </div>
+      <label>Old product names to search for in the template <small>(leftovers)</small></label>
+      <input type="text" id="oldNames">
+
+      <details open>
+        <summary>Section → image order <small>(check your template; change if it differs)</small></summary>
+        <div class="order-grid" id="orderGrid" style="margin-top:8px"></div>
+      </details>
+      <details>
+        <summary>Output options</summary>
+        <label><input type="checkbox" id="includeText" checked> Include extracted competitor text in master prompt</label>
+        <label>Max competitor text characters</label>
+        <input type="text" id="maxChars">
+      </details>
+      <button class="btn sec big" id="resetBtn" style="margin-top:12px">↺ Reset settings to defaults</button>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: OUTPUTS ============ -->
+  <div class="card">
+    <div class="tabs" id="tabs"></div>
+    <div id="panel"><div class="empty">Paste a competitor link on the left and click <b>Analyze</b>.<br><br>You'll get: <b>Master prompt</b> (everything in one, paste into a new chat) · <b>Brief</b> · <b>Copy template</b> · <b>Image prompts</b> · <b>Checklist</b> · <b>Competitor images</b> (assign each to a slot).</div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   DEFAULTS – change here once if your template / store changes
+   ===================================================================== */
+const DEFAULTS = {
+  templateUrl: 'https://www.vital-konzept.ch/erovyn/lander',
+  storeDomain: 'vital-konzept.ch',
+  supportEmail: 'support@vital-konzept.ch',
+  language: 'de-CH',
+  p1: '35/70', p2: '50/140', p3: '65/210', p5: '95/350',
+  currency: 'CHF', insurance: '5', stock: '7',
+  oldNames: 'Elviro, Elvory, Neurolyn',
+  maxChars: '12000',
+  order: { S1: 'BEFORE_AFTER', S2: 'MECHANICS', S3: 'STEP_BY_STEP', S4: 'DOCTOR', S5: 'TESTIMONIAL', CLOSING: 'CLOSING' }
+};
+
+const IMAGE_TYPES = {
+  MAIN:         'Main (hero)',
+  BEFORE_AFTER: 'Before & after',
+  MECHANICS:    'Mechanics (how it works)',
+  STEP_BY_STEP: 'Step by step',
+  DOCTOR:       'Doctor / expert',
+  TESTIMONIAL:  'Testimonial',
+  CLOSING:      'Closing / offer image',
+  PRODUCT:      'Product / packaging reference',
+  REVIEW:       'Review photo',
+  REF:          'Other reference',
+  IGNORE:       '— ignore —'
+};
+const SECTION_SLOTS = [
+  ['S1', 'Section 1 (after hero, beige)'],
+  ['S2', 'Section 2 (white)'],
+  ['S3', 'Section 3 (beige)'],
+  ['S4', 'Section 4 (white)'],
+  ['S5', 'Section 5 (before reviews)'],
+  ['CLOSING', 'Closing section (after reviews)']
+];
+const SECTION_TOPIC = {
+  BEFORE_AFTER: 'Problem & agitation → the turning point. Describe the frustration (what life feels like now), say it is not their fault, introduce the product as the different way.',
+  MECHANICS:    'How it works / why this method beats the usual alternative ({ALT}). Take the competitor\'s mechanism explanation and rephrase it WITHOUT unverifiable numbers or medical promises.',
+  STEP_BY_STEP: 'How to use it in 3 simple steps. Each paragraph = one step, starting with the bold step name ("1. …:").',
+  DOCTOR:       'Expert perspective (doctor / specialist). General, true statements about the topic + product as simple, non-invasive addition. No invented studies or percentages.',
+  TESTIMONIAL:  'Emotional benefit & social proof: how customers ({SOCIAL}) feel after making it part of their routine, thousands of satisfied customers.',
+  CLOSING:      'Offer & risk reversal: 30-day money-back guarantee, scarcity note (high demand, limited stock), final call to action. Paragraph 3 fully bold.'
+};
+
+
+/* =====================================================================
+   PRODUCT CATEGORIES – scenes, expert, FAQ, audience per niche
+   (auto-detected from the competitor text, can be changed in the UI)
+   ===================================================================== */
+const NICHES = {
+  intimacy_m: { label: "Men's intimacy / potency", re: /(?<![a-zäöüß])(erektion|erection|erectile|potenz|potency|libido|penis|schlafzimmer|bedroom|sexual|\bsex\b|manneskraft|im bett|in bed|viagra|sildenafil|tadalafil|vergrösser|enlarge)/gi,
+    gender: 'men', ages: '45–65', look: 'with grey stubble and a warm smile', partner: true, explicit: true,
+    expert: 'male doctor (urologist) in his 50s in a white coat with stethoscope, bright modern clinic background', expertDe: 'Facharzt für Urologie',
+    alt: 'pills / tablets', social: 'and their partners', bullet3: '"no pills / no doctor visit / easy" type benefit',
+    bigQ: P => `Kann ${P} vergrössern / dauerhaft verändern?`, sensQ: P => `Ist ${P} auch für empfindliche Haut geeignet?`,
+    hero: 'with his partner affectionately hugging from behind, smiling, warm golden bedroom light',
+    before: 'sitting on the edge of the bed, head resting on hand, partner turned away in the background, cool blue dim light',
+    after: 'relaxed, smiling and confident, partner hugging him, warm golden light',
+    testi: 'different happy, affectionate couples (45–65) smiling and taking selfies',
+    reviewMix: 'sceptic convinced / practical everyday user / partner perspective',
+    reviewAngles: 'price, discretion, partner, routine, scepticism, customer service, reorder' },
+  dental: { label: 'Dental / dentures / teeth', re: /(?<![a-zäöüß])(prothese\w*|gebiss|denture\w*|dental|zahn\w*|zähne|zahnfleisch|teeth|tooth|gums?\b|haftcreme|whitening|bleaching|dentist|kiefer\w*|kauen|chewing|lächeln|smile)/gi,
+    gender: 'mixed', ages: '60–80', look: 'with grey hair and a broad, natural-looking smile (well-fitting dentures), warm and approachable', partner: false,
+    expert: 'friendly dentist / prosthodontist in his 50s in a white dental coat, modern dental practice with a treatment chair in the background', expertDe: 'Zahnarzt, Fachgebiet Prothetik',
+    alt: 'adhesive cream / the usual product', social: 'and their families', bullet3: '"no daily re-applying / no sticky residue / easy" type benefit',
+    bigQ: P => `Wie lange hält ${P} wirklich?`, sensQ: P => `Ist ${P} auch für empfindliches Zahnfleisch geeignet?`,
+    hero: 'laughing openly at a family dinner table, biting into a crisp apple, warm golden home light',
+    before: 'at a dinner table looking embarrassed, hand in front of the mouth, plate of food untouched, others chatting in the background, cool dim light',
+    after: 'laughing openly at the same table, biting into a crisp apple / crusty bread, warm golden light',
+    testi: 'happy seniors (60–80) laughing, eating and chatting with family and friends',
+    reviewMix: 'sceptic convinced (tried everything) / practical everyday user / family-member perspective',
+    reviewAngles: 'eating favourite foods again, confidence when talking and laughing, no sticky residue, cost vs. the usual product, lower denture, first-application learning curve, customer service, reorder',
+    mech: 'a clean 3D cross-section of a jaw with gum tissue and a denture on top; the gap between gum and denture (caused by bone loss) is filled by a soft-pink moulded layer that follows the gum contour exactly; subtle glow highlights the perfect fit; small inset: ordinary adhesive cream dissolving into droplets',
+    steps: [['Prothese vorbereiten','Prothese reinigen und gründlich trocknen','hands drying a clean denture with a soft towel, the tube next to it'],['Auftragen & einsetzen','gemäss Anleitung gleichmässig auftragen, Prothese einsetzen, sanft zubeissen','close-up of hands applying an even line from the tube onto a denture'],['Aushärten lassen & geniessen','vollständig aushärten lassen (einige Stunden nichts essen) – danach mehrere Tage Halt','smiling senior biting into a crisp apple at a bright kitchen table']] },
+  pain: { label: 'Joints / pain / muscles / nerves', re: /(?<![a-zäöüß])(gelenk\w*|joints?\b|knie|knee|rücken\w*|back pain|schmerz\w*|pain|arthr\w*|nacken|neck|schulter|shoulder|hüfte|hip|nerv\w*|neuropath\w*|ischias|sciatica|muskel\w*|muscle|entzünd\w*|inflamm\w*|beweglich\w*|mobility)/gi,
+    gender: null, ages: '50–75', look: 'active and fit-looking, friendly smile', partner: false,
+    expert: 'friendly orthopaedic specialist in a white coat, modern practice with a joint model on the desk', expertDe: 'Facharzt für Orthopädie',
+    alt: 'painkillers / the usual remedies', social: 'and their families', bullet3: '"no pills / no complicated routine" type benefit',
+    bigQ: P => `Heilt ${P} meine Beschwerden?`, sensQ: P => `Ist ${P} auch bei empfindlicher Haut / langfristiger Anwendung geeignet?`,
+    hero: 'walking happily in nature / gardening, moving freely, warm daylight',
+    before: 'holding the painful knee/back with a pained face, sitting on a sofa, cool dim light',
+    after: 'gardening / hiking / playing with grandchildren, moving freely, warm golden light',
+    testi: 'active, happy people (50–75) hiking, gardening, dancing, playing with grandchildren',
+    reviewMix: 'sceptic convinced / practical everyday user / family-member perspective',
+    reviewAngles: 'everyday mobility, sleep, hobbies, routine, scepticism, price, customer service, reorder',
+    mech: 'a clean 3D anatomical illustration of the affected joint/area (translucent body), red irritated zone gradually calming to soft blue/gold as glowing particles arrive' },
+  skin: { label: 'Skin / beauty / anti-aging', re: /(?<![a-zäöüß])(haut\w*|skin|falten|wrinkle\w*|akne|acne|pigment\w*|flecken|spots|cellulite|dehnungsstreifen|stretch marks|anti.?aging|teint|complexion|poren|pores|narben|scars?|warzen?|warts?|ekzem|eczema|psoriasis|schuppenflechte|feuchtigkeit|hydrat\w*)/gi,
+    gender: null, ages: '35–60', look: 'with healthy, glowing skin and a natural smile', partner: false,
+    expert: 'friendly dermatologist in a white coat, bright modern clinic', expertDe: 'Fachärztin für Dermatologie',
+    alt: 'expensive treatments / ordinary creams', social: '', bullet3: '"no expensive treatments / easy daily routine" type benefit',
+    bigQ: P => `Entfernt ${P} Falten / Flecken dauerhaft?`, sensQ: P => `Ist ${P} auch für empfindliche Haut geeignet?`,
+    hero: 'touching the face gently in front of a bright bathroom mirror, glowing skin, soft daylight',
+    before: 'looking critically into a bathroom mirror, tired-looking skin, cool flat light',
+    after: 'smiling into the mirror with fresh, even, glowing skin, warm soft light',
+    testi: 'happy, confident people with fresh-looking skin taking selfies',
+    reviewMix: 'sceptic convinced / practical everyday user / friend-or-partner noticed it',
+    reviewAngles: 'compliments, routine, texture/scent, sensitive skin, price, customer service, reorder',
+    mech: 'a clean 3D cross-section of skin layers with glowing active particles penetrating and the surface becoming visibly smoother' },
+  hair: { label: 'Hair / beard / scalp', re: /(?<![a-zäöüß])(haar\w*|hair|glatze|bald\w*|kopfhaut|scalp|bart|beard|wimpern|lashes|follik\w*|follic\w*)/gi,
+    gender: null, ages: '30–55', look: 'with full, healthy-looking hair and a confident smile', partner: false,
+    expert: 'friendly dermatologist / trichologist in a white coat, modern clinic with a scalp-analysis camera', expertDe: 'Facharzt für Dermatologie (Haare & Kopfhaut)',
+    alt: 'expensive transplants / ordinary shampoos', social: '', bullet3: '"no expensive treatment / easy routine" type benefit',
+    bigQ: P => `Lässt ${P} verlorene Haare garantiert nachwachsen?`, sensQ: P => `Ist ${P} auch für eine empfindliche Kopfhaut geeignet?`,
+    hero: 'running a hand through full, healthy hair, bright bathroom or outdoor light',
+    before: 'looking worriedly at thinning hair in a bathroom mirror / hair on a brush, cool light',
+    after: 'confident with fuller-looking hair, warm light',
+    testi: 'confident people with healthy hair taking selfies',
+    reviewMix: 'sceptic convinced / practical everyday user / partner noticed it',
+    reviewAngles: 'confidence, routine, scent, scalp feeling, price, customer service, reorder',
+    mech: 'a clean 3D cross-section of the scalp with hair follicles, glowing nutrients reaching the roots, follicles appearing stronger' },
+  weight: { label: 'Weight / slimming / metabolism', re: /(?<![a-zäöüß])(abnehm\w*|gewicht\w*|weight|übergewicht|fett\w*|\bfat\b|bauch\w*|belly|slim\w*|schlank\w*|appetit\w*|appetite|kalorien|calories|stoffwechsel|metabolism|kilos?\b|heisshunger|cravings)/gi,
+    gender: null, ages: '30–60', look: 'fit-looking, relaxed and happy', partner: false,
+    expert: 'friendly nutritionist / doctor in a white coat, bright modern practice with fresh vegetables on the desk', expertDe: 'Ernährungsberaterin / Ärztin',
+    alt: 'strict diets / the usual remedies', social: '', bullet3: '"no strict diet / easy routine" type benefit',
+    bigQ: P => `Wie viele Kilo verliere ich mit ${P}?`, sensQ: P => `Ist ${P} auch für Menschen mit empfindlichem Magen geeignet?`,
+    hero: 'smiling in a bright kitchen, healthy breakfast on the table, relaxed and energetic, warm daylight',
+    before: 'frustrated in front of the wardrobe mirror, clothes feeling tight, cool light',
+    after: 'happy and energetic in comfortable clothes, warm daylight',
+    testi: 'happy, energetic people outdoors and at home',
+    reviewMix: 'sceptic convinced / practical everyday user / partner perspective',
+    reviewAngles: 'energy, cravings, routine, taste, price, customer service, reorder',
+    mech: 'a clean 3D infographic of the body (stylised, translucent) with glowing nutrients supporting the metabolism' },
+  sleep: { label: 'Sleep / stress / snoring', re: /(?<![a-zäöüß])(schlaf\w*|sleep\w*|insomnia|einschlaf\w*|durchschlaf\w*|stress\w*|anxiety|unruhe|entspann\w*|relax\w*|schnarch\w*|snor\w*|müdigkeit|tired)/gi,
+    gender: null, ages: '35–65', look: 'rested, calm and relaxed', partner: false,
+    expert: 'friendly sleep specialist / doctor in a calm modern practice', expertDe: 'Facharzt für Schlafmedizin',
+    alt: 'sleeping pills / the usual remedies', social: 'and their partners', bullet3: '"no sleeping pills / easy routine" type benefit',
+    bigQ: P => `Heilt ${P} Schlafstörungen?`, sensQ: P => `Kann ich ${P} jeden Tag anwenden?`,
+    hero: 'waking up rested in a bright bedroom, stretching with a smile, soft morning light',
+    before: 'lying awake in bed at night, staring at the clock, cool blue light',
+    after: 'waking up rested and smiling, soft warm morning light',
+    testi: 'rested, happy people in the morning (coffee, walk, family breakfast)',
+    reviewMix: 'sceptic convinced / practical everyday user / partner perspective',
+    reviewAngles: 'mornings, energy, routine, partner, price, customer service, reorder',
+    mech: 'a clean 3D infographic of a calm head/brain with soft waves calming from red/orange to blue' },
+  feet: { label: 'Feet / nails / fungus', re: /(?<![a-zäöüß])(fuss|füsse|foot|feet|nagelpilz|nail fungus|fungus|pilz|hornhaut|callus\w*|fersen?|heels?\b|zehen\w*|toe\w*|ballen|bunion|hallux|nägel|nails?)/gi,
+    gender: null, ages: '45–75', look: 'relaxed and confident, friendly smile', partner: false,
+    expert: 'friendly podiatrist / dermatologist in a white coat, bright modern practice', expertDe: 'Podologin / Fachärztin für Dermatologie',
+    alt: 'the usual remedies', social: '', bullet3: '"easy / no complicated routine" type benefit',
+    bigQ: P => `Heilt ${P} Nagelpilz / Fussprobleme vollständig?`, sensQ: P => `Ist ${P} auch für empfindliche Haut geeignet?`,
+    hero: 'barefoot on a sunny terrace / beach, relaxed and confident, warm light',
+    before: 'hiding feet in socks / looking unhappy at the feet, cool light',
+    after: 'barefoot and relaxed in sandals, warm summer light',
+    testi: 'happy people barefoot at the beach, pool and garden',
+    reviewMix: 'sceptic convinced / practical everyday user / family perspective',
+    reviewAngles: 'summer/sandals, routine, comfort, price, customer service, reorder',
+    mech: 'a clean 3D cross-section of the nail/skin with active particles penetrating' },
+  generic: { label: 'Other (neutral)', re: /$^/g,
+    gender: null, ages: '35–65', look: 'friendly and relatable, warm smile', partner: false,
+    expert: 'friendly expert / specialist matching the product topic, bright modern professional setting', expertDe: '[passende Fachrichtung]',
+    alt: 'the usual alternative', social: '', bullet3: '"easier than the usual alternative" type benefit',
+    bigQ: P => `Was kann ${P} wirklich – und was nicht?`, sensQ: P => `Ist ${P} für jeden geeignet?`,
+    hero: 'using / enjoying the result of the product in a bright, warm everyday setting',
+    before: 'frustrated by the problem in an everyday situation, cool light',
+    after: 'relieved and happy in the same situation, warm light',
+    testi: 'different happy customers in everyday Swiss settings',
+    reviewMix: 'sceptic convinced / practical everyday user / family-or-partner perspective',
+    reviewAngles: 'everyday benefit, routine, scepticism, price, customer service, reorder' }
+};
+function detectNiche(text){
+  const scores = Object.entries(NICHES).filter(([k]) => k !== 'generic').map(([k, n]) => { n.re.lastIndex = 0; return [k, (text.match(n.re) || []).length]; }).sort((a, b) => b[1] - a[1]);
+  const words = Math.max(1, text.split(/\s+/).length);
+  const top = scores[0], second = scores[1] || [null, 0];
+  // needs enough hits AND density (≥ 4 per 1000 words) AND a clear lead over the runner-up
+  return top && top[1] >= 4 && top[1] / words * 1000 >= 4 && top[1] >= second[1] * 1.3 ? top[0] : 'generic';
+}
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const FIELDS = ['competitorUrl','productName','productForm','niche','packSubtitle','packaging','audience','model','problem','manualText','manualImages','templateUrl','storeDomain','supportEmail','language','p1','p2','p3','p5','currency','insurance','stock','oldNames','maxChars'];
+let STATE = { data: null, order: { ...DEFAULTS.order }, slots: {}, tab: 'master', showUi: false };
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+function clean(s){ return (s||'').replace(/\s+/g,' ').trim(); }
+function uniq(arr, key = x => x){ const seen = new Set(); return arr.filter(x => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); }
+function val(id){ return ($(id).value || '').trim(); }
+function absUrl(u, base){ try { return new URL(u.trim().replace(/&amp;/g,'&'), base).href; } catch { return null; } }
+function keyOf(u){ try { const x = new URL(u); return x.hostname + x.pathname; } catch { return u; } }
+function fileName(u){ try { return decodeURIComponent(new URL(u).pathname.split('/').pop()); } catch { return u; } }
+function splitSentences(t){
+  // protect abbreviations (Dr., Prof., z.B., Mr., Nr. …) so they don't end a sentence
+  const prot = t.replace(/\b(Dr|Prof|Hr|Fr|Mr|Mrs|Ms|St|Nr|No|Mag|Dipl|Med|vs|ca|bzw|inkl|ggf|z\.B|u\.a|d\.h|e\.g|i\.e)\./gi, m => m.replace(/\./g, '\u2024'));
+  return prot.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜÀ-Ý0-9„“"«])/).map(x => x.replace(/\u2024/g, '.'));
+}
+function parsePrice(s){ const [a,b] = (s||'').split('/').map(x=>x.trim()); return { price: a||'?', compare: b||'?' }; }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+/* =====================================================================
+   SETTINGS PERSISTENCE
+   ===================================================================== */
+function loadSettings(){
+  const saved = JSON.parse(localStorage.getItem('lkg_settings') || '{}');
+  FIELDS.forEach(f => { const v = saved[f] ?? DEFAULTS[f]; if (v !== undefined && $(f)) $(f).value = v; });
+  if (saved.order) STATE.order = { ...DEFAULTS.order, ...saved.order };
+  if (saved.includeText !== undefined) $('includeText').checked = saved.includeText;
+  const last = JSON.parse(localStorage.getItem('lkg_last') || 'null');
+  if (last) { STATE.data = last.data; STATE.slots = last.slots || {}; }
+}
+function saveSettings(){
+  const s = {}; FIELDS.forEach(f => s[f] = $(f).value); s.order = STATE.order; s.includeText = $('includeText').checked;
+  localStorage.setItem('lkg_settings', JSON.stringify(s));
+}
+function saveLast(){ try { localStorage.setItem('lkg_last', JSON.stringify({ data: STATE.data, slots: STATE.slots })); } catch {} }
+
+function renderOrderGrid(){
+  const g = $('orderGrid'); g.innerHTML = '';
+  SECTION_SLOTS.forEach(([k, label]) => {
+    const l = document.createElement('div'); l.textContent = label;
+    const s = document.createElement('select');
+    ['BEFORE_AFTER','MECHANICS','STEP_BY_STEP','DOCTOR','TESTIMONIAL','CLOSING'].forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = IMAGE_TYPES[t]; if (STATE.order[k] === t) o.selected = true; s.appendChild(o); });
+    s.onchange = () => { STATE.order[k] = s.value; saveSettings(); render(); };
+    g.append(l, s);
+  });
+}
+
+/* =====================================================================
+   FETCH: own API → reader (browser) → manual paste
+   ===================================================================== */
+async function fetchCompetitor(url){
+  const notes = [];
+  try {
+    const r = await fetch('/api/fetch?mode=auto&url=' + encodeURIComponent(url));
+    const ct = r.headers.get('content-type') || '';
+    if (r.ok && ct.includes('json')) {
+      const j = await r.json();
+      if (j.ok) { j.via = 'server' + (j.reader && !j.html ? ' + reader' : ''); return j; }
+      notes.push('Server: ' + (j.error || 'failed'));
+    } else notes.push('No /api/fetch on this host (static hosting) – using reader.');
+  } catch (e) { notes.push('Server fetch error: ' + e.message); }
+  // reader – full rendered HTML first (keeps FAQ buttons, tables, alt texts), markdown as last resort
+  try {
+    const r = await fetch('https://r.jina.ai/' + url, { headers: { 'X-Return-Format': 'html' } });
+    if (r.ok) { const t = await r.text(); if (t.length > 3000 && /<(div|p|body)/i.test(t)) return { ok: true, url, finalUrl: url, html: t, reader: '', shopify: null, notes, via: 'reader (browser, html)' }; }
+    else notes.push('Reader (html) HTTP ' + r.status);
+  } catch (e) { notes.push('Reader (html) error: ' + e.message); }
+  try {
+    const r = await fetch('https://r.jina.ai/' + url, { headers: { 'Accept': 'text/plain' } });
+    if (r.ok) { const t = await r.text(); return { ok: true, url, finalUrl: url, html: '', reader: t, shopify: null, notes, via: 'reader (browser)' }; }
+    notes.push('Reader HTTP ' + r.status);
+  } catch (e) { notes.push('Reader error: ' + e.message); }
+  return { ok: false, url, notes, error: notes.join(' | ') };
+}
+
+/* =====================================================================
+   PARSERS (generic – works for advertorials, Shopify, Funnelish, WP …)
+   ===================================================================== */
+const UI_IMG_RE = /(logo|icon|favicon|sprite|pixel|tracking|payment|paypal|visa|master-?card|klarna|twint|amex|maestro|apple-?pay|google-?pay|gpay|trustpilot|star|rating|flag|badge|arrow|check|tick|emoji|spinner|loader|facebook|instagram|tiktok|youtube|shield|lock|secure|ssl|guarantee|seal|placeholder|blank|spacer|transparent|\.svg)/i;
+
+function parseHTML(html, base){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const out = { title: clean(doc.title), lang: doc.documentElement.getAttribute('lang') || '', meta: {}, blocks: [], images: [], jsonld: [] };
+  doc.querySelectorAll('meta[property],meta[name]').forEach(m => { const k = (m.getAttribute('property') || m.getAttribute('name')).toLowerCase(); if (/^(og:|description|twitter:title|twitter:description)/.test(k)) out.meta[k] = m.getAttribute('content'); });
+  doc.querySelectorAll('script[type="application/ld+json"]').forEach(s => { try { const j = JSON.parse(s.textContent); (Array.isArray(j) ? j : (j['@graph'] || [j])).forEach(x => out.jsonld.push(x)); } catch {} });
+  doc.querySelectorAll('script,style,noscript,svg,iframe,template,link').forEach(n => n.remove());
+
+  // images (incl. lazy-load attributes, srcset, <picture>, inline backgrounds).
+  // Context = nearest heading-like line + the text right before/after the image.
+  // Works without <h1-6> tags (Funnelish, page builders, advertorials use styled <p>/<div>).
+  const pickSrcset = ss => { if (!ss) return null; const parts = ss.split(',').map(p => p.trim().split(/\s+/)); parts.sort((a,b) => (parseFloat(b[1])||0) - (parseFloat(a[1])||0)); return parts[0] && parts[0][0]; };
+  const isHeadingLike = el => {
+    const tag = el.tagName; const t = clean(el.textContent);
+    if (t.length < 6 || t.length > 160) return false;
+    if (/^H[1-4]$/.test(tag)) return true;
+    if (/(^|[\s_-])(headline|heading|title|subtitle|h1|h2|h3)([\s_-]|$)/i.test(el.className || '')) return !el.querySelector('p,div,li');
+    const fs = (el.getAttribute('style') || '').match(/font-size:\s*(\d+)/i); if (fs && +fs[1] >= 20) return true;
+    if ((tag === 'STRONG' || tag === 'B') && el.parentElement && clean(el.parentElement.textContent) === t) return true;
+    return false;
+  };
+  let lastHeading = '', textBuf = '';
+  const pending = [];
+  if (doc.body) {
+    const tw = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      if (n.nodeType === 3) { const t = n.nodeValue.replace(/\s+/g, ' '); if (t.trim()) textBuf += t; continue; }
+      const el = n, tag = el.tagName;
+      if (/^(P|DIV|LI|H\d|BR|SECTION|TD)$/.test(tag)) textBuf += ' · ';
+      if (isHeadingLike(el)) lastHeading = clean(el.textContent).slice(0, 140);
+      let cands = [];
+      if (tag === 'IMG') cands = [el.getAttribute('data-src'), el.getAttribute('data-lazy-src'), el.getAttribute('data-original'), pickSrcset(el.getAttribute('data-srcset')), pickSrcset(el.getAttribute('srcset')), el.getAttribute('src')];
+      else if (tag === 'SOURCE') cands = [pickSrcset(el.getAttribute('data-srcset')), pickSrcset(el.getAttribute('srcset'))];
+      const st = el.getAttribute('style'); if (st && /url\(/i.test(st)) { const m = st.match(/url\(["']?([^"')]+)["']?\)/i); if (m) cands.push(m[1]); }
+      const c = cands.find(x => x && !x.startsWith('data:'));
+      if (c) { const u = absUrl(c, base); if (u) { const img = { url: u, alt: clean(el.getAttribute('alt') || el.getAttribute('title') || ''), ctx: lastHeading, before: clean(textBuf.slice(-260).replace(/(\s·\s)+/g, ' · ')), after: '', w: parseInt(el.getAttribute('width')) || 0 }; out.images.push(img); pending.push([img, textBuf.length]); } }
+    }
+    pending.forEach(([img, pos]) => { img.after = clean(textBuf.slice(pos, pos + 260).replace(/(\s·\s)+/g, ' · ')); });
+  }
+  if (out.meta['og:image']) { const u = absUrl(out.meta['og:image'], base); if (u) out.images.unshift({ url: u, alt: 'og:image', ctx: 'Social preview image', w: 0 }); }
+
+  // tables (comparison tables!) -> one readable line per row, e.g. "Hält mehrere Tage — Creme: ✕ · Produkt: ✓"
+  doc.body && doc.body.querySelectorAll('table').forEach(tb => {
+    const rows = [...tb.querySelectorAll('tr')]; if (!rows.length) return;
+    const cellTxt = c => clean(c.textContent) || clean([...c.querySelectorAll('img')].map(i => i.getAttribute('alt') || '').join(' ')) || '';
+    let head = [...rows[0].querySelectorAll('th,td')].map(cellTxt);
+    const headIsHeader = rows[0].querySelector('th') || head.slice(1).every(h => h && !/^[✓✔✕✖×x✗–-]$/.test(h));
+    const frag = doc.createDocumentFragment();
+    rows.slice(headIsHeader ? 1 : 0).forEach(r => {
+      const cells = [...r.querySelectorAll('th,td')].map(cellTxt); if (!cells.some(Boolean)) return;
+      const line = cells[0] + (cells.length > 1 ? ' — ' + cells.slice(1).map((v, i) => (headIsHeader && head[i + 1] ? head[i + 1] : 'col ' + (i + 2)) + ': ' + (v || '–')).join(' · ') : '');
+      const pEl = doc.createElement('p'); pEl.textContent = line; frag.appendChild(pEl);
+    });
+    tb.replaceWith(frag);
+  });
+
+  // text blocks = innermost block elements, in document order
+  const BLOCK = 'h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,summary,dt,dd,td,th,div,section,article,span,strong,b,em,a,button,label';
+  const leafSel = 'h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,summary,dt,dd,td,th,div,section,article,button';
+  doc.body && doc.body.querySelectorAll(leafSel).forEach(el => {
+    if (el.querySelector(leafSel)) return;
+    const t = clean(el.textContent); if (t.length < 3) return;
+    // buttons: keep FAQ/accordion questions, skip CTA buttons ("Jetzt bestellen")
+    if (el.tagName === 'BUTTON' && !(/\?\s*$/.test(t) && t.length > 10)) return;
+    out.blocks.push({ tag: el.tagName.toLowerCase(), text: t });
+  });
+  // also standalone strong/b lines that sit inside non-leaf containers
+  doc.body && doc.body.querySelectorAll('strong,b').forEach(el => { const t = clean(el.textContent); if (t.length > 25 && t.length < 220) out.blocks.push({ tag: 'strong', text: t }); });
+  return out;
+}
+
+function parseMarkdown(md){
+  const out = { title: '', lang: '', meta: {}, blocks: [], images: [], jsonld: [] };
+  const tm = md.match(/^Title:\s*(.+)$/m); if (tm) out.title = clean(tm[1]);
+  const body = md.split(/Markdown Content:\s*/)[1] || md;
+  let lastHeading = '', textBuf = ''; const pending = [];
+  body.split(/\n+/).forEach(line => {
+    const imgRe = /!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g; let m;
+    while ((m = imgRe.exec(line))) { const img = { url: m[2], alt: clean(m[1]).replace(/^Image \d+:?\s*/i,''), ctx: lastHeading, before: clean(textBuf.slice(-260)), after: '', w: 0 }; out.images.push(img); pending.push([img, textBuf.length]); }
+    if (/^\s*\|?[\s:|-]+\|?\s*$/.test(line) && line.includes('-')) return; // table separator row
+    if (/^\s*\|.*\|\s*$/.test(line)) { const cells = line.trim().replace(/^\||\|$/g, '').split('|').map(x => clean(x)); line = cells[0] + (cells.length > 1 ? ' — ' + cells.slice(1).map((v, i) => 'col ' + (i + 2) + ': ' + (v || '–')).join(' · ') : ''); if (!cells[0]) return; }
+    let t = line.replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`>#]+/g, ' ');
+    t = clean(t); if (t.length < 3) return;
+    textBuf += ' · ' + t;
+    const isHead = /^#{1,4}\s/.test(line) || /^\*\*[^*]{6,200}\*\*$/.test(line.trim()) || /^[^a-z]{6,80}$/.test(t);
+    if (isHead) lastHeading = t.slice(0, 140);
+    out.blocks.push({ tag: isHead ? 'h3' : 'p', text: t });
+  });
+  pending.forEach(([img, pos]) => { img.after = clean(textBuf.slice(pos, pos + 260)); });
+  return out;
+}
+
+function parseShopify(j){
+  if (!j) return null;
+  const txt = clean((j.description || '').replace(/<[^>]+>/g, ' '));
+  return {
+    title: j.title, vendor: j.vendor, type: j.type,
+    prices: uniq((j.variants || []).map(v => `${v.title}: ${(v.price/100).toFixed(2)}${v.compare_at_price ? ' (compare ' + (v.compare_at_price/100).toFixed(2) + ')' : ''}`)),
+    images: (j.images || []).map(u => absUrl(u, 'https://x.com')),
+    text: txt
+  };
+}
+
+/* ----- analysis on merged text ----- */
+const FORM_RULES = [
+  ['cream', /\b(cream|creme|crème|krem|crema|balm|balsam|salbe|ointment|gel)\b/gi],
+  ['oil', /\b(oil|öl|huile|olej|olio|aceite)\b/gi],
+  ['serum', /\b(serum|sérum|siero|drops|tropfen|gouttes|krople|gocce)\b/gi],
+  ['capsules', /\b(capsules?|kapseln?|gélules?|kapsułk\w*|tablets?|tabletten)\b/gi],
+  ['gummies', /\b(gummies|gummy|fruchtgummis?|gommes?)\b/gi],
+  ['spray', /\b(spray|sprej)\b/gi],
+  ['patches', /\b(patch(es)?|pflaster|plastry|cerotti)\b/gi],
+  ['powder', /\b(powder|pulver|poudre|proszek)\b/gi],
+  ['device', /\b(device|gerät|appareil|massager|stimulator|urządzenie)\b/gi],
+  ['material', /\b(thermoplast\w*|moldable|mouldable|formbar\w*|reliner|unterfütter\w*|liner|schiene|knetmasse|perlen|beads|pellets|granulat)\b/gi],
+  ['strips', /\b(strips|streifen|bandes|paski)\b/gi]
+];
+// specific forms win over generic words that are often only mentioned as the alternative ("unlike creams …")
+const FORM_WEIGHT = { material: 4, patches: 2, device: 1.5, strips: 2, spray: 1.5, gummies: 1.5 };
+const FORM_NEG = /\b(kein\w*|nicht|not|no|statt|instead of|anstelle|unlike|im gegensatz zu|vs\.?|versus|ohne|without|sans|bez|senza|sin)\s+(\w+\s+){0,2}$/i;
+const CLAIM_RE = /(\d+(?:[.,]\d+)?\s?(?:cm|mm|inch(?:es)?|zoll|kg|lbs?|pounds?|pfund)\b|\d{2,3}(?:[.,]\d+)?\s?%|clinic(?:al|ally)|klinisch|studie|study|studies|proven|bewiesen|nachgewiesen|garantiert|guarantee[sd]?|cure[sd]?|heilt|heilen|heal|doctor|dr\.|urolog\w*|dermatolog\w*|orthopäd\w*|orthop(?:a|e)edic\w*|kardiolog\w*|cardiolog\w*|gyn(?:ä|ae|e)kolog\w*|gynecolog\w*|internist\w*|arzt|ärzt\w*|médecin|lekarz\w*|(?:nach|in|within|after|en|w)\s(?:nur\s|only\s|just\s|seulement\s)?\d+\s?(?:tag(?:en)?|days?|minuten|minutes?|stunden|hours?|wochen|weeks?|jours|dni|giorni|semaines)|schmerzfrei|pain.?free|abnehmen|lose weight|weight loss|anti.?aging|verjüng\w*|hält\s(?:bis\szu\s)?\d+|(?:\d+\s?(?:bis|-|–|to)\s?)?\d+\s?(?:tage|days|stunden|hours|wochen|weeks)\s(?:halt|hold|lang|long|wirkung)|(?:bis zu|up to|jusqu'à|do)\s\d+|tausende|thousands|\bFDA\b|instant(?:ly)?|sofort\w*|miracle|wunder\w*|side.?effects?|nebenwirkung\w*|permanent\w*|dauerhaft\w*|recommended by|empfohlen|million\w*|\b\d{1,3}[.,']\d{3}\b)/i;
+const LANG_SW = { en: /\b(the|and|you|your|with|this|is)\b/gi, de: /\b(und|die|der|sie|nicht|mit|ist|ihr)\b/gi, fr: /\b(les|et|vous|votre|avec|est|pour)\b/gi, it: /\b(il|che|non|con|per|sono|della)\b/gi, es: /\b(el|que|los|con|para|una|por)\b/gi, pl: /\b(się|nie|jest|dla|oraz|jak|już)\b/gi, nl: /\b(het|een|niet|voor|met|zijn|uw)\b/gi };
+
+function analyze(raw, manualText, manualImgs){
+  const parts = [];
+  if (raw && raw.html) parts.push(parseHTML(raw.html, raw.finalUrl || raw.url));
+  if (raw && raw.reader) parts.push(parseMarkdown(raw.reader));
+  if (manualText) parts.push({ title: '', lang: '', meta: {}, blocks: manualText.split(/\n+/).map(t => ({ tag: /\?$/.test(t.trim()) ? 'h4' : 'p', text: clean(t) })).filter(b => b.text.length > 2), images: [], jsonld: [] });
+  const shop = parseShopify(raw && raw.shopify);
+
+  const base = (raw && (raw.finalUrl || raw.url)) || 'https://example.com';
+  let images = [];
+  parts.forEach(p => images.push(...p.images));
+  if (shop) shop.images.forEach(u => u && images.push({ url: u, alt: 'Shopify product image', ctx: shop.title, w: 0 }));
+  (manualImgs || '').split(/\s+/).filter(Boolean).forEach(u => { const a = absUrl(u, base); if (a) images.push({ url: a, alt: 'manual', ctx: '', w: 0 }); });
+  images = uniq(images.filter(i => /^https?:/.test(i.url)), i => keyOf(i.url)).map(i => ({ ...i, ui: UI_IMG_RE.test(fileName(i.url)) || UI_IMG_RE.test(i.alt) || (i.w && i.w < 90) }));
+
+  let blocks = [];
+  parts.forEach(p => blocks.push(...p.blocks));
+  if (shop && shop.text) blocks.unshift({ tag: 'p', text: shop.text });
+  const LEGAL_RE = /(privacy|cookie|terms of (use|service)|arbitration|personally identifiable|personal (data|information)|datenschutz|\bAGB\b|nutzungsbedingungen|widerruf|haftung|politique de confidentialit|conditions générales|informativa|polityka prywatno|regulamin|password|unsubscribe|newsletter|sign up for|all rights reserved|alle rechte|©|copyright|third[- ]part|liability|warrant(y|ies)|jurisdiction|governing law|gdpr|dsgvo|claimant|arbitrator|the platform|we are not responsible|wir haften nicht|reasonable efforts)/i;
+  blocks = uniq(blocks.filter(b => b.text.length >= 3 && b.text.length <= 1200 && !/^(like|comment|reply|share)\b/i.test(b.text) && !LEGAL_RE.test(b.text)), b => b.text.toLowerCase());
+  // language of the page (needed for filters below)
+  const langOf = t => Object.entries(LANG_SW).map(([k, re]) => { re.lastIndex = 0; return [k, (t.match(re) || []).length]; }).sort((a,b) => b[1]-a[1]);
+  const lang0 = langOf(blocks.map(b => b.text).join('\n'));
+  const lang = ((parts.find(p => p.lang && !/^en/i.test(p.lang)) || {}).lang || '').slice(0,2) || lang0[0][0];
+  // drop blocks in a different language (e.g. English leftovers of the competitor's own template)
+  let droppedLang = 0;
+  blocks = blocks.filter(b => { if (lang === 'en') return true; const words = b.text.split(/\s+/).length; if (words < 4) return true; const sc = Object.fromEntries(langOf(b.text)); if ((sc.en || 0) >= 2 && !(sc[lang] || 0)) { droppedLang++; return false; } return true; });
+  // junk lines: table separators, countdown digits, pure symbols
+  blocks = blocks.filter(b => !/^[\s|:\-–—✓✔✕✖×x]+$/i.test(b.text) && !/^\W*\d{1,2}\s*(std|min|sek|sec|hrs?|h|m|s|stunden|minuten|sekunden|tage?|days?)\.?\W*$/i.test(b.text));
+  let allText = blocks.map(b => b.text).join('\n');
+
+  const meta = Object.assign({}, ...parts.map(p => p.meta));
+  const title = (parts.find(p => p.title) || {}).title || meta['og:title'] || '';
+  const product = (parts.flatMap(p => p.jsonld)).find(x => /product/i.test(x['@type'] || '')) || null;
+
+  // competitor product name: most frequent word followed by ™/®, else JSON-LD/Shopify/title
+  const tm = {}; (allText.match(/([A-Z][\w\-]{2,})\s?[™®]/g) || []).forEach(m => { const k = m.replace(/\s?[™®]/, ''); tm[k] = (tm[k] || 0) + 1; });
+  const tmTop = Object.entries(tm).sort((a,b) => b[1]-a[1])[0];
+  // Product name priority: Shopify title → JSON-LD Product → ™ word that appears in title/H1 or ≥2× → H1 → page title
+  const h1 = (blocks.find(b => b.tag === 'h1') || {}).text || '';
+  const tmInHead = tmTop && (new RegExp(tmTop[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(title + ' ' + h1) || tmTop[1] >= 2);
+  const compName = (shop && shop.title) || (product && product.name) || (tmInHead && tmTop[0] + '™') || (tmTop && tmTop[0] + '™') || (h1 && h1.length < 90 && h1) || title.split(/[|–—-]/)[0].trim();
+  // other ™ names = usually leftovers of the competitor's previous product/template → ignore their blocks
+  const compBase = (compName || '').replace(/[™®]/g, '').trim().toLowerCase();
+  // only names that appear in an offer/price context (e.g. "5x DermoPur™", "DermoPur™ … $79") – not material trademarks like TENCEL™
+  const OFFER_CTX = /(\d\s?x\s?|CHF|€|EUR|£|\$|zł|kr\b|total|gesamt|only|nur|price|preis)/i;
+  const otherBrands = Object.entries(tm).filter(([k]) => k.toLowerCase() !== compBase && !compBase.includes(k.toLowerCase()))
+    .filter(([k]) => { const r = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s?[™®]'); return blocks.some((b, i) => r.test(b.text) && (OFFER_CTX.test(b.text) || [blocks[i + 1], blocks[i + 2]].some(n => n && /(CHF|€|EUR|£|\$|zł)\s?\d|\d\s?(CHF|€|EUR|£|\$|zł)/.test(n.text)))); })
+    .map(([k]) => k + '™');
+  if (otherBrands.length) {
+    const ob = new RegExp('(' + otherBrands.map(b => b.replace(/[™]/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\s?[™®]', 'i');
+    const bi = blocks.findIndex(b => ob.test(b.text));
+    // drop blocks mentioning them + the price/offer lines right after them
+    blocks = blocks.filter((b, i) => !ob.test(b.text));
+    allText = blocks.map(b => b.text).join('\n');
+  }
+
+  // product form
+  const compRe = compBase ? new RegExp(compBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : null;
+  const sentAll = blocks.flatMap(b => splitSentences(b.text));
+  const formScores = FORM_RULES.map(([k, re]) => {
+    let sc = 0;
+    sentAll.forEach(sn => { re.lastIndex = 0; let m; while ((m = re.exec(sn))) { const before = sn.slice(0, m.index); const neg = FORM_NEG.test(before); sc += neg ? -2 : (compRe && compRe.test(sn) ? 3 : 1); } });
+    return [k, sc * (FORM_WEIGHT[k] || 1)];
+  }).sort((a,b) => b[1]-a[1]);
+  const formGuess = formScores[0][1] > 0 ? formScores[0][0] : 'cream';
+  const nicheGuess = detectNiche(allText + ' ' + title);
+
+
+  // audience
+  const men = (allText.match(lang === 'en' ? /\b(men|man|male|gentlemen)\b/gi : /\b(männer\w*|mann|herren|homme|hommes|uomini|uomo|mężczyzn\w*|hombres?)\b/gi) || []).length;
+  const women = (allText.match(/\b(women|woman|female|frauen|frau|femmes?|donne|kobiet\w*|mujeres?)\b/gi) || []).length;
+  const ageM = allText.match(/\b(\d{2})\s?(?:years old|jahre alt|ans|anni|lat)\b/gi) || [];
+  const ages = ageM.map(a => parseInt(a)).filter(n => n > 17 && n < 90);
+  const NG = NICHES[nicheGuess];
+  const ageTxt = ages.length ? `${Math.max(25, Math.floor((Math.min(...ages) - 5) / 5) * 5)}–${Math.min(85, Math.ceil((Math.max(...ages) + 5) / 5) * 5)}` : NG.ages;
+  const gender = NG.gender === 'men' ? 'men' : NG.gender === 'mixed' ? (women > men * 2 && women >= 4 ? 'women' : men > women * 2 && men >= 4 ? 'men' : 'mixed') : (men > women * 1.5 && men >= 3 ? 'men' : women > men * 1.5 && women >= 3 ? 'women' : 'mixed');
+  const audienceGuess = (gender === 'men' ? 'men ' : gender === 'women' ? 'women ' : 'women & men ') + ageTxt;
+
+  const sentences = blocks.flatMap(b => splitSentences(b.text));
+  const claims = uniq(sentences.filter(s => s.length > 12 && s.length < 320 && CLAIM_RE.test(s))).slice(0, 40);
+  const rawPrices = (allText.match(/(?:CHF|Fr\.|€|EUR|£|GBP|\$|USD|zł|PLN|SEK|NOK|DKK|lei|RON|Kč|CZK|Ft|HUF)\s?\d{1,4}(?:[.,']\d{1,3})*(?:[.,]\d{1,2}|\.–|\.-)?|\d{1,4}(?:[.,']\d{3})*(?:[.,]\d{1,2})?\s?(?:CHF|€|EUR|£|zł|PLN|kr|lei|Kč|Ft|USD|\$)(?![a-z])/g) || []).map(clean)
+    .filter(x => !/^(SEK|NOK|DKK)\s?0\d$/.test(x));  // "15 SEK" = seconds in German countdowns
+  const curOf = x => (x.match(/CHF|Fr\.|€|EUR|£|GBP|\$|USD|zł|PLN|SEK|NOK|DKK|kr|lei|RON|Kč|CZK|Ft|HUF/) || [''])[0].replace('Fr.', 'CHF').replace('EUR', '€').replace('USD', '$');
+  const curCount = {}; rawPrices.forEach(x => { const c = curOf(x); curCount[c] = (curCount[c] || 0) + 1; });
+  const mainCur = Object.entries(curCount).sort((a, b) => b[1] - a[1])[0];
+  const prices = uniq(rawPrices.filter(x => !mainCur || curOf(x) === mainCur[0])).slice(0, 16);
+  const sizes = uniq((allText.match(/\b\d{1,4}\s?(?:ml|mL|g|gr|oz|fl\.?\s?oz|capsules|kapseln|tabletten|tablets|gummies|stück|stk|pcs|patches|pflaster)\b/gi) || []).map(clean)).slice(0, 10);
+  const FIRST_PERSON = /\b(ich|mein\w*|mir|mich|I|my|me|je|mon|ma|mes|io|mio|mia|ja|mój|moja)\b/;
+  const testimonials = uniq(blocks.filter(b => (/^[„“"«”].{35,}|[„“"«].{35,}[“"»”]$|★|⭐/.test(b.text) || (FIRST_PERSON.test(b.text) && b.text.length > 80 && !/\?\s*$/.test(b.text))) && (b.text.replace(/[^\p{L}]/gu, '').length > 40) && b.text.length < 700).map(b => b.text)).slice(0, 14);
+  const faqs = []; blocks.forEach((b, i) => { if (/\?$/.test(b.text) && b.text.length > 10 && b.text.length < 170) { const nxt = blocks[i+1]; faqs.push(b.text + (nxt && !/\?$/.test(nxt.text) ? '\n   → ' + nxt.text.slice(0, 300) : '')); } });
+  const kw = (re, noFirstPerson) => uniq(blocks.filter(b => re.test(b.text) && b.text.length < 600 && !(noFirstPerson && FIRST_PERSON.test(b.text))).map(b => b.text)).slice(0, 8);
+  const PRICE_LINE = /(CHF|€|EUR|£|\$|zł|kr)\s?\d|\d\s?(CHF|€|EUR|£|\$|zł|kr)\b/;
+  const isAngle = t => t.length >= 14 && t.length < 200 && !(PRICE_LINE.test(t) && t.length < 50) && !/^\(?\d+\s*[x+]\s*\d*/i.test(t) && (t.replace(/[^\p{L}]/gu, '').length / t.length) > 0.6 && !/^[A-ZÄÖÜ0-9\s!.:⚡️]{0,24}$/.test(t);
+  const upperRatio = t => { const L = t.replace(/[^\p{L}]/gu, ''); return L ? L.replace(/[^\p{Lu}]/gu, '').length / L.length : 0; };
+  const headings = uniq(blocks.filter(b => /^h[1-4]$|strong/.test(b.tag) && isAngle(b.text) && upperRatio(b.text) < 0.6
+    && !(b.tag === 'strong' && (b.text.split(/\s+/).length < 5 || /^[a-zäöü]/.test(b.text)))).map(b => b.text)).slice(0, 25);
+
+  return {
+    fetchedAt: new Date().toISOString(), url: raw ? raw.url : '', finalUrl: raw ? raw.finalUrl : '', via: raw ? raw.via : 'manual', notes: raw ? (raw.notes || []) : [],
+    title, description: meta['og:description'] || meta['description'] || (product && product.description) || '', siteName: meta['og:site_name'] || '',
+    compName, formGuess, nicheGuess, otherBrands, droppedLang, lang, audienceGuess, prices, sizes, claims, testimonials, faqs: uniq(faqs).slice(0, 15), headings,
+    ingredients: kw(/(material|thermoplast|ingredient|inhaltsstoff|wirkstoff|composition|ingrédient|skład|ingredienti|contains|enthält|extract|extrakt|vitamin|zinc|zink|l-arginin|ginseng|maca|collagen|kollagen|hyaluron)/i, true),
+    usage: kw(/(how to use|directions|anleitung|aushärt|trocken sein|erwärm|heat(ed)? |warm water|warmes wasser|einsetzen|insert|zubeissen|stunden ohne|hours without|apply (a|an|the|it|to|twice|once|daily|\d)|massage (it |gently |into)|rub (it |gently |into)|take \d|\d+\s?(x|times|mal) (a |per |pro |am )?(day|daily|tag|täglich)|anwendung:|so wenden|anwenden:|auftragen|einmassieren|einnehmen|nehmen sie|mode d'emploi|appliquer|sposób użycia|stosować|modo d'uso|applicare|modo de uso|aplicar)/i, true),
+    guarantee: kw(/(guarantee|garantie|garanzia|garantía|gwarancj|money.?back|geld.?zurück|refund|rückerstatt|risikofrei|risk.?free|ohne risiko|sans risque|rembours|zwrot|rimborso|reembolso|satisfait ou)/i),
+    shipping: kw(/(shipping|versand|delivery|lieferung|livraison|dostawa|spedizione|discreet|diskret)/i),
+    images, textBlocks: blocks.map(b => (/^h[1-4]$/.test(b.tag) ? '## ' : '') + b.text), shopify: shop
+  };
+}
+
+/* ----- auto slot guess for competitor images ----- */
+// Strong = filename + alt text (can decide alone). Context = heading-like line + text around the image (needs specific phrases).
+const SLOT_KW = {
+  DOCTOR: {
+    strong: /(doctor|\bdr\b|arzt|ärzt|urolog|dermatolog|gyn[aä]ekolog|gynecolog|expert|specialist|spezialist|médecin|medico|médico|lekarz|physician|apothek|pharmac)/,
+    ctx:    /(urolog|dermatolog|gyn[aä]kolog|gynecolog|fach[aä]rzt|\bdr\.\s?[a-zäöü]+\s[a-zäöü]+|médecin|lekarz|physician|specialist says|experte (sagt|empfiehlt|erklärt)|expert (says|recommends|explains)|empfiehlt [a-z]+™|recommends [a-z]+™)/
+  },
+  BEFORE_AFTER: {
+    strong: /(before|after|vorher|nachher|avant|apr[eè]s|przed|antes|despu[eé]s|\bba\b|result|ergebnis|transform)/,
+    ctx:    /(vorher.{0,12}nachher|before.{0,12}after|avant.{0,12}apr[eè]s|przed.{0,12}po\b|antes.{0,12}despu[eé]s|prima.{0,12}dopo|results? after \d+|ergebnis(se)? nach \d+|nach \d+ (tagen|wochen)|after \d+ (days|weeks))/
+  },
+  STEP_BY_STEP: {
+    strong: /(step|schritt|how ?to|anwendung|anleitung|usage|apply|étape|krok|passo|paso)/,
+    ctx:    /(step 1|schritt 1|1\. schritt|in (3|drei|three) (steps|schritten)|how to use|so (einfach )?geht.?s|anwendung:|so wenden sie|étape 1|krok 1|passo 1|paso 1)/
+  },
+  MECHANICS: {
+    strong: /(how ?it ?works|mechan|anatom|ingredient|inhaltsstoff|wirkstoff|formula|formel|science|absorb|blood|circulat|cross ?section|querschnitt|infograph|diagram)/,
+    ctx:    /(how (it|does it|the cream|the formula) works?|so wirkt|wie wirkt|wirkungsweise|wirkmechanismus|mechanism|penetrates? (the skin|deep)|dringt (tief )?in die haut|blood (flow|circulation)|durchblutung|ingredients?:|inhaltsstoffe:|clinically (tested|studied)|studie)/
+  },
+  TESTIMONIAL: {
+    strong: /(testimonial|couple|paar|happy|zufrieden|satisfied|lifestyle)/,
+    ctx:    /(^\W*[a-zäöü]+ [a-zäöü.]+,? \d{2} (years old|jahre alt|ans|lat|anni|años)|my (wife|partner|girlfriend)|meine (frau|partnerin|freundin)|ma (femme|compagne)|moja (żona|partnerka)|we (are|feel)|wir (sind|fühlen))/
+  },
+  REVIEW: {
+    strong: /(review|bewertung|rezension|avis|opinie|recens|reseña|ugc|avatar|\bvc ?\d|\buser ?\d|\bcustomer|\bkunde|profile|profil)/,
+    ctx:    /(verified (buyer|purchase)|verifizierte?r? (kauf|käufer|kunde)|achat vérifié|zweryfikowan|\b\d+ (likes?|gefällt)|reply|antworten)/
+  },
+  PRODUCT: {
+    strong: /(\bprod\b|product|produkt|bottle|tube|\btub\b|bundle|flasche|\bdose\b|\bjar\b|\bbox\b|packshot|flacon|butel|package|paket|\d ?x\b|\bpack\b|offer|angebot)/,
+    ctx:    /(order now|jetzt bestellen|add to cart|in den warenkorb|buy \d|\d ?x [a-z]+™|commander|zamów|secure your|sichern sie sich|limited stock|nur noch \d+)/
+  }
+};
+function guessSlot(img, idx, firstContentIdx){
+  if (img.ui) return 'IGNORE';
+  let fn = fileName(img.url); try { fn = decodeURIComponent(fn); } catch {}
+  const strong = (fn.replace(/\.[a-z0-9]+$/i, '').replace(/[_\-+.]+/g, ' ') + ' ' + (img.alt || '')).toLowerCase();
+  const head = (img.ctx || '').toLowerCase();
+  const near = ((img.before || '').slice(-180) + ' ' + (img.after || '').slice(0, 180)).toLowerCase();
+  let best = null, bestScore = 0;
+  for (const [slot, re] of Object.entries(SLOT_KW)) {
+    const sc = (re.strong.test(strong) ? 4 : 0) + (re.ctx.test(head) ? 2 : 0) + (re.ctx.test(near) ? 1 : 0) + (re.strong.test(head) ? 1 : 0);
+    if (sc > bestScore) { best = slot; bestScore = sc; }
+  }
+  if (bestScore >= 3) return best;
+  if (idx === firstContentIdx) return 'MAIN';
+  return 'REF';
+}
+function ensureSlots(){
+  const d = STATE.data; if (!d) return;
+  const firstContent = d.images.findIndex(i => !i.ui); // og:image (social preview) is usually the hero/main product shot
+  d.images.forEach((img, i) => { if (!STATE.slots[keyOf(img.url)]) STATE.slots[keyOf(img.url)] = guessSlot(img, i, firstContent); });
+}
+function imagesFor(type){ const d = STATE.data; if (!d) return []; return d.images.filter(i => STATE.slots[keyOf(i.url)] === type).map(i => i.url); }
+
+/* =====================================================================
+   OUTPUT BUILDERS
+   ===================================================================== */
+const FORM_INFO = {
+  cream:    { pack: 'tube', unit: 'Tube', mech: 'a clean 3D cross-section of human skin layers (epidermis, dermis, subcutis) with blood vessels below; golden glowing particles flow from a dab of cream on the surface down through the layers into the vessels, which glow brighter where the particles arrive (= improved circulation)', steps: [['Kleine Menge entnehmen','erbsengrosse Menge auf die Fingerspitze geben','hands squeezing a pea-sized dab of cream from the tube onto a fingertip'],['Sanft einmassieren','äusserlich auf die saubere, trockene Haut auftragen','two hands gently rubbing a little cream between fingers and palms, tube in the background'],['Selbstbewusst geniessen','diskret, unkompliziert, jederzeit griffbereit','happy relaxed couple in a cosy bedroom with warm light, product on the bedside table']] },
+  oil:      { pack: 'bottle', unit: 'Flasche', mech: 'a clean 3D cross-section of skin layers; golden oil droplets on the surface sink into the skin, the tissue below glows softly where the nourishing particles arrive', steps: [['Ein paar Tropfen','einige Tropfen in die Handfläche geben','hand pouring a few drops of oil from the bottle into the palm'],['Einmassieren','sanft in kreisenden Bewegungen einmassieren','hands massaging oil into the skin in circular motions'],['Täglich anwenden','morgens und abends zur Routine machen','relaxed person smiling in a bright bathroom, bottle on the shelf']] },
+  serum:    { pack: 'dropper bottle', unit: 'Flasche', mech: 'a clean 3D illustration of a drop being absorbed (through skin or under the tongue, according to the brief) with glowing particles entering the bloodstream', steps: [['Pipette füllen','Pipette mit der empfohlenen Menge füllen','hand holding the dropper bottle, filling the pipette'],['Anwenden','gemäss Packungsbeilage auftragen bzw. einnehmen','close-up of the dropper releasing a drop'],['Täglich wiederholen','fester Teil der täglichen Routine','smiling person in daily life, bottle on the table']] },
+  capsules: { pack: 'supplement jar', unit: 'Dose', mech: 'a clean 3D infographic of a capsule dissolving and its glowing nutrients spreading through the body via the bloodstream (stylised, translucent body, no explicit anatomy)', steps: [['Kapseln nehmen','empfohlene Menge mit einem Glas Wasser einnehmen','hand holding two capsules next to a glass of water and the jar'],['Täglich dranbleiben','am besten immer zur gleichen Zeit','jar on a kitchen counter in morning light, calendar/routine feeling'],['Wohlbefinden geniessen','Teil eines gesunden Lebensstils','energetic smiling person outdoors']] },
+  gummies:  { pack: 'supplement jar', unit: 'Dose', mech: 'a clean 3D infographic of a gummy releasing glowing nutrients that spread through the body (stylised, translucent body)', steps: [['Gummy nehmen','empfohlene Menge täglich geniessen','hand taking a gummy out of the jar'],['Täglich dranbleiben','fester Teil der Routine','jar on a bright kitchen counter'],['Wohlbefinden geniessen','Teil eines gesunden Lebensstils','smiling person in daily life']] },
+  spray:    { pack: 'spray bottle', unit: 'Flasche', mech: 'a clean 3D illustration of a fine mist landing on the skin and active particles being absorbed into the tissue below', steps: [['Schütteln','Flasche kurz schütteln','hand shaking the spray bottle'],['Aufsprühen','auf die betreffende Stelle sprühen','close-up of the fine mist being sprayed'],['Einwirken lassen','kurz einziehen lassen – fertig','relaxed smiling person']] },
+  patches:  { pack: 'box of patches', unit: 'Packung', mech: 'a clean 3D cross-section of skin with a patch on top slowly releasing glowing particles into the layers below (transdermal release)', steps: [['Haut reinigen','saubere, trockene Hautstelle wählen','hands cleaning a small skin area'],['Patch aufkleben','Patch andrücken','hand applying a patch to the skin'],['Tragen & vergessen','diskret unter der Kleidung','smiling person going about the day']] },
+  powder:   { pack: 'pouch', unit: 'Beutel', mech: 'a clean 3D infographic of powder dissolving in water and nutrients spreading through a stylised body', steps: [['Pulver abmessen','einen Messlöffel in Wasser geben','scoop of powder over a glass of water'],['Umrühren','gut verrühren und trinken','stirring the drink'],['Täglich geniessen','Teil der Routine','smiling person with the drink']] },
+  material: { pack: 'tube', unit: 'Tube', mech: 'a clean 3D cross-section showing how the soft material fills the gap and moulds itself exactly to the surface it sits on, then sets firmly (soft-pink/neutral moulded layer, subtle glow highlighting the perfect fit)', steps: [['Vorbereiten','Oberfläche reinigen und gut trocknen','hands drying the clean item with a towel, the tube next to it'],['Auftragen & anpassen','dünn und gleichmässig auftragen, einsetzen und sanft andrücken','close-up of hands applying an even line from the tube'],['Aushärten lassen & geniessen','vollständig aushärten lassen – danach hält es mehrere Tage','relaxed smiling person in everyday life']] },
+  strips:   { pack: 'box of strips', unit: 'Packung', mech: 'a clean 3D illustration of a thin strip releasing its active layer evenly onto the surface it touches', steps: [['Streifen entnehmen','Schutzfolie abziehen','hands peeling the protective film from a strip'],['Aufkleben','Streifen anlegen und andrücken','close-up of the strip being applied'],['Einwirken lassen','nach der Einwirkzeit einfach abziehen','smiling person in a bright bathroom']] },
+  device:   { pack: 'device in its box', unit: 'Gerät', mech: 'a clean 3D illustration showing how the device works on the body (waves/energy visualised as soft glowing rings), stylised and non-explicit', steps: [['Einschalten','Gerät einschalten und Stufe wählen','hand switching the device on'],['Anwenden','sanft auf die gewünschte Stelle anwenden','device being used, close-up'],['Entspannen','wenige Minuten täglich','relaxed smiling person']] }
+};
+
+const LANG_RULES = {
+  'de-CH': 'Swiss High German (Schweizer Hochdeutsch): NEVER use "ß" – always "ss" (grösser, geniessen, äusserlich). Quotes «…». Formal "Sie". Prices like "CHF 35.-". Thousands with apostrophe (60’000). No German-German or Austrian expressions.',
+  'de-DE': 'German (Germany): correct "ß" usage, quotes „…“, formal "Sie", prices like "35,00 €", thousands with dot (60.000).',
+  'fr-CH': 'Swiss French: formal "vous", quotes « … » with spaces, prices like "CHF 35.-", thousands with apostrophe (60’000). Translate all fixed template strings too.',
+  'it-CH': 'Swiss Italian: formal "Lei", quotes «…», prices like "CHF 35.-", thousands with apostrophe. Translate all fixed template strings too.',
+  'en-GB': 'British English (colour, centre, programme). Quotes “…”. Translate all fixed template strings too.'
+};
+
+function ctx(){
+  const d = STATE.data || {};
+  let form = val('productForm'); if (form === 'auto') form = d.formGuess || 'cream';
+  let nicheId = val('niche'); if (!nicheId || nicheId === 'auto') nicheId = d.nicheGuess || 'generic';
+  const N = NICHES[nicheId] || NICHES.generic;
+  const fi = FORM_INFO[form] || FORM_INFO.cream;
+  const P = (val('productName') || '[YOUR PRODUCT NAME]™').replace(/\s+([™®])/g, '$1').trim();
+  const Pplain = P.replace(/[™®]/g, '');
+  const aud = val('audience') || d.audienceGuess || ((N.gender === 'men' ? 'men ' : 'women & men ') + N.ages);
+  const isWomen = /^\s*(women|frauen|female)\b/i.test(aud) && !/men\b.*&|&.*\bmen\b/i.test(aud);
+  const isMixed = !isWomen && !/^\s*(men|männer|male)\b/i.test(aud);
+  const m = aud.match(/(\d{2})\s*[–-]\s*(\d{2})/); const mid = m ? (+m[1] + +m[2]) / 2 : 50;
+  const decade = mid < 33 ? 'late 20s' : mid < 43 ? 'late 30s' : mid < 53 ? 'late 40s' : mid < 61 ? 'mid-50s' : mid < 68 ? 'mid-60s' : 'early 70s';
+  const model = val('model') || (isWomen ? `an attractive, confident woman in her ${decade} ${N.look}` : isMixed ? `an attractive, relatable ${mid >= 58 ? 'senior ' : ''}man in his ${decade} ${N.look}` : `an attractive, confident man in his ${decade} ${N.look}`);
+  const partner = isWomen ? 'her partner' : 'his partner';
+  const steps = N.steps || fi.steps;
+  const mech = N.mech || fi.mech;
+  const packGiven = !!val('packaging'); const pack = val('packaging') || `[missing – describe the ${fi.pack}: colours, logo, text, size]`;
+  const sub = val('packSubtitle');
+  const modelNote = (!val('model') && isMixed) ? ' (mixed audience – a woman of the same age works too; keep the SAME person in all images)' : '';
+  return { modelNote, packGiven, d, form, fi, N, nicheId, steps, mech, P, Pplain, aud, isWomen, isMixed, decade, model, partner, pack, sub, lang: val('language'), cur: val('currency') || 'CHF',
+    prices: { 1: parsePrice(val('p1')), 2: parsePrice(val('p2')), 3: parsePrice(val('p3')), 5: parsePrice(val('p5')) } };
+}
+
+function listOr(arr, empty = '— none found —', bullet = '- '){ return arr && arr.length ? arr.map(x => bullet + x).join('\n') : empty; }
+
+/* ---------- BRIEF ---------- */
+function buildBrief(){
+  const c = ctx(), d = c.d;
+  const open = [];
+  if (!val('productName')) open.push('New brand/product name?');
+  if (!val('packaging')) open.push('Packaging reference image + description (colours, logo, text, size)?');
+  if (!val('packSubtitle')) open.push('Exact text printed on the pack (subtitle)?');
+  if (!d.sizes || !d.sizes.length) open.push('Product size (ml / g / pieces)?');
+  if (!d.ingredients || !d.ingredients.length) open.push('Ingredients (check supplier / competitor packaging)?');
+  if (d.claims && d.claims.length) open.push('Which competitor claims can the supplier actually prove? (default: none → rephrase all)');
+  const imgs = (d.images || []).filter(i => !i.ui);
+  return `# BRIEF – ${c.P}
+Created: ${today()}
+
+## 1. Source
+- Competitor URL: ${d.url || val('competitorUrl') || '[missing]'}${d.finalUrl && d.finalUrl !== d.url ? '\n- Final URL (after redirects): ' + d.finalUrl : ''}
+- Fetched via: ${d.via || 'manual'}${d.notes && d.notes.length ? '\n- Notes: ' + d.notes.join(' | ') : ''}
+- Competitor page language: ${d.lang || '?'}
+- Our template: ${val('templateUrl')}
+
+## 2. Our product
+- Name: ${c.P}
+- Category: ${c.N.label}${val('niche') === 'auto' || !val('niche') ? ' (auto-detected – change in the tool if wrong)' : ''}
+- Form: ${c.form} (${c.fi.pack})
+- Packaging: ${c.pack}
+- Text on pack: ${c.sub || '[missing]'}
+- Target customer: ${c.aud}
+- Main character / model: ${c.model}${c.modelNote}
+- Main problem: ${val('problem') || '[derive from competitor content]'}
+- Landing page language: ${c.lang} → ${LANG_RULES[c.lang]}
+
+## 3. Competitor product (same product, different brand)
+- Competitor product name: ${d.compName || '?'}
+- Page title: ${d.title || '?'}
+- Description: ${d.description || '—'}
+- Prices found on page: ${(d.prices || []).join(', ') || '—'}${d.shopify ? '\n- Shopify variants: ' + d.shopify.prices.join(' · ') : ''}
+- Size / quantity found: ${(d.sizes || []).join(', ') || '—'}${d.otherBrands && d.otherBrands.length ? '\n- ⚠ Other brand names on the competitor page (leftovers of THEIR old template – ignored, do not use): ' + d.otherBrands.join(', ') : ''}${d.droppedLang ? '\n- ' + d.droppedLang + ' text blocks in another language were ignored (template leftovers)' : ''}
+
+## 4. Product facts to carry over (rewrite, don't copy)
+### Ingredients / formula mentions
+${listOr(d.ingredients)}
+### Usage instructions
+${listOr(d.usage)}
+### Guarantee / refund
+${listOr(d.guarantee)}
+### Shipping / discretion
+${listOr(d.shipping)}
+
+## 5. Selling angles (competitor headlines – use the ANGLE, write new copy)
+${listOr(d.headings)}
+
+## 6. Objections / FAQ found on competitor page
+${listOr(d.faqs)}
+
+## 7. Competitor testimonials (inspiration only – write new ones)
+${listOr(d.testimonials)}
+
+## 8. ⚠️ Risky claims found – DO NOT copy as-is
+These contain numbers, medical promises, studies, doctors, guarantees of results or "instant" effects. Keep only the harmless angle (e.g. "no pills", "discreet"), drop numbers/studies/cures.
+${listOr(d.claims)}
+
+## 9. Image plan (our template)
+- Hero: MAIN image
+${SECTION_SLOTS.map(([k, l]) => `- ${l}: ${IMAGE_TYPES[STATE.order[k]]}`).join('\n')}
+- Packages: BUNDLE images 1x / 2x / 3x / 5x (product only, no box)
+- Sticky bar: product only, transparent background
+- Expert avatar: crop of the DOCTOR image
+- Review photos: 11 portraits (3 top + 8 grid)
+
+## 10. Competitor images found (${imgs.length})
+${imgs.length ? imgs.map(i => `- [${IMAGE_TYPES[STATE.slots[keyOf(i.url)]] || 'Other'}] ${i.url}${i.alt ? '  (alt: ' + i.alt.slice(0,60) + ')' : ''}${(i.ctx || i.after) ? '\n    near text: "' + (i.ctx || i.after).slice(0, 110) + '"' : ''}`).join('\n') : '— none —'}
+
+## 11. Store & offer
+- Store: ${val('storeDomain')} · Support: ${val('supportEmail')}
+- Packages (${c.cur}): 1x ${c.prices[1].price} (statt ${c.prices[1].compare}) · 2x ${c.prices[2].price} (statt ${c.prices[2].compare}) · 3x ${c.prices[3].price} (statt ${c.prices[3].compare}) · 5x ${c.prices[5].price} (statt ${c.prices[5].compare})
+- Shipping insurance: ${c.cur} ${val('insurance')} · Discount label: 50 % · Stock counter: ${val('stock')}
+- Guarantee: 30 Tage Geld-zurück-Garantie · Free shipping
+
+## 12. Open questions
+${listOr(open, '— none —')}
+`;
+}
+
+/* ---------- COPY TEMPLATE ---------- */
+function buildCopy(){
+  const c = ctx(); const P = c.P; const cur = c.cur; const pr = c.prices;
+  const per = n => { const p = parseFloat(String(pr[n].price).replace(',', '.')); return isNaN(p) ? '?' : Math.round(p / n); };
+  const save = n => { const a = parseFloat(String(pr[n].price).replace(',', '.')), b = parseFloat(String(pr[n].compare).replace(',', '.')); return isNaN(a) || isNaN(b) ? '?' : Math.round(b - a); };
+  const sec = (k, n) => {
+    const t = STATE.order[k];
+    return `
+### ${n}. ${SECTION_SLOTS.find(s => s[0] === k)[1]} — image: ${IMAGE_TYPES[t]}
+Topic: ${SECTION_TOPIC[t].replace('{ALT}', c.N.alt).replace(' ({SOCIAL})', c.N.social ? ' ' + c.N.social.replace(/^and /, 'and ') : '').replace('{SOCIAL}', '')}
+${k}_TITLE: [6–12 words, benefit- or emotion-led headline]
+${k}_P1: [40–60 words]
+${k}_P2: [40–60 words – MUST start with "**${P} ${'[product type]'}**"]
+${k}_P3: [25–45 words${t === 'CLOSING' ? ' – whole paragraph in **bold**, final call to action' : ''}]
+(fixed below: button "JETZT BESTELLEN ➞" + line "50 % Rabatt endet um 23:59 Uhr (Nur noch ${val('stock')} Stück auf Lager)")`;
+  };
+  return `# COPY TEMPLATE – ${P}
+Fill EVERY slot. Keep the slot IDs so the copy can be pasted into the template 1:1.
+Language: ${LANG_RULES[c.lang]}
+Style: warm, discreet, reassuring, benefit-led; short sentences; no hype words like "Wundermittel"; no unverifiable numbers, studies or medical promises.
+
+## 0. Fixed elements (keep as is${c.lang.startsWith('de') ? '' : ' – translate'})
+TOPBAR: "👀 Exklusives Angebot auf Facebook!! 👏🏻" / "Nur auf dieser Seite verfügbar. Letzte Chance!" + countdown (Stunden / Minuten / Sekunden)
+HEADER: logo + button "JETZT BESTELLEN"
+PRESS STRIP: logos + "★★★★★ Bekannt aus…"
+
+## 1. HERO (left: MAIN image · right: content)
+HERO_REVIEW_NAME: [Swiss first name + initial, e.g. "Martin M."] (date = automatically 5 days ago)
+HERO_REVIEW_TEXT: [50–70 words, first person, in «…», realistic, mentions a concrete everyday detail and the product form]
+HERO_RATING: "Ausgezeichnet: 4,7 · 13.428 Bewertungen" (fixed)
+HERO_H1: [format: "${P} [Produkttyp] für [Zielgruppe] | [Hauptnutzen]" – 12–20 words]
+HERO_PRICE: "${cur} ${pr[1].price}.-" / old "${cur} ${pr[1].compare}" / badge "Sie sparen ${cur} ${save(1)}.-"
+HERO_BULLET_1: [≤ 55 chars – strongest benefit]
+HERO_BULLET_2: [≤ 55 chars – emotional benefit]
+HERO_BULLET_3: [≤ 55 chars – ${c.N.bullet3}]
+HERO_BULLET_4: [≤ 55 chars – product detail (size, form, discreet)]
+HERO_BULLET_5: "30 Tage Geld-zurück-Garantie" (or similar guarantee line)
+EXPERT_HEADING: "Worte des Experten:"
+EXPERT_QUOTE: [45–65 words, in «…», general and true statements, no study numbers]
+EXPERT_NAME: [e.g. "– Dr. Markus Steiner – ${c.N.expertDe}" – fitting specialty; fictional placeholder until a real expert agrees]
+HERO_CTA: "JETZT BESTELLEN ➞" · GUARANTEE_LINE: "100 % Zufriedenheit oder Geld zurück" · payment icons
+${sec('S1', 2)}
+${sec('S2', 3)}
+${sec('S3', 4)}
+${sec('S4', 5)}
+${sec('S5', 6)}
+
+### 7. REVIEWS (3 cards) — heading fixed: "★★★★★ Über 60’000 verifizierte Kunden / Werden Sie noch heute Teil von tausenden Erfolgsgeschichten!"
+REVIEW_1_NAME: [first name + initial] · REVIEW_1_TEXT: [45–65 words, «…»]
+REVIEW_2_NAME: · REVIEW_2_TEXT:
+REVIEW_3_NAME: · REVIEW_3_TEXT:
+(button "MEHR ANSEHEN")
+(Mix: ${c.N.reviewMix}. Names must match the gender of the review photo.)
+${sec('CLOSING', 8)}
+
+### 9. TRUST BADGES (fixed)
+"Über 60’000 zufriedene Kunden" · GELD-ZURÜCK-GARANTIE · KOSTENLOSER VERSAND GARANTIERT · HOHE QUALITÄT GARANTIERT
+
+### 10. FAQ — heading "HÄUFIG GESTELLTE FRAGEN" (10 Q&A, shown in 2 columns of 5)
+FAQ_1_Q: Was ist ${P} und wofür wird es verwendet? · FAQ_1_A: [40–60 words]
+FAQ_2_Q: [how is it different from the usual alternative (${c.N.alt})] · FAQ_2_A:
+FAQ_3_Q: [the "big promise" question, e.g. "${c.N.bigQ(P)}"] · FAQ_3_A: [HONEST: individual, not guaranteed / not scientifically proven – no numbers unless the supplier can prove them]
+FAQ_4_Q: [results question] · FAQ_4_A: [honest: individual, no guarantee, see a doctor for persistent problems]
+FAQ_5_Q: Wie wende ich ${P} richtig an? · FAQ_5_A:
+FAQ_6_Q: ${c.N.sensQ(P)} · FAQ_6_A:
+FAQ_7_Q: Benötige ich ein Rezept? · FAQ_7_A:
+FAQ_8_Q: Wird meine Bestellung diskret geliefert? · FAQ_8_A:
+FAQ_9_Q: Welches Paket soll ich wählen? · FAQ_9_A: [3er-Paket most popular, best price per piece]
+FAQ_10_Q: Was passiert, wenn ich nicht zufrieden bin? · FAQ_10_A: [30-Tage-Geld-zurück-Garantie]
+
+### 11. PACKAGES — heading "Wählen Sie Ihr ${P} Paket" / sub "Je grösser das Paket, desto mehr sparen Sie pro Stück."
+5x ${P} · tag "BESTER PREIS" · ${cur} ${per(5)} / Stück · Gesamt ${cur} ${pr[5].price} (statt ${pr[5].compare}) · Sie sparen ${cur} ${save(5)} · button "5er-Paket wählen"
+3x ${P} · tag "BELIEBTESTE WAHL" (highlighted) · ${cur} ${per(3)} / Stück · Gesamt ${cur} ${pr[3].price} (statt ${pr[3].compare}) · Sie sparen ${cur} ${save(3)} · button "3er-Paket wählen"
+2x ${P} · tag "VORTEILSPAKET" · ${cur} ${per(2)} / Stück · Gesamt ${cur} ${pr[2].price} (statt ${pr[2].compare}) · Sie sparen ${cur} ${save(2)} · button "2er-Paket wählen"
+1x ${P} · tag "EINZELPACKUNG" · ${cur} ${pr[1].price} / Stück · Gesamt ${cur} ${pr[1].price} (statt ${pr[1].compare}) · Sie sparen ${cur} ${save(1)} · button "Einzelpackung wählen"
+Perks: Kostenloser Versand · 30 Tage Geld-zurück-Garantie · Sichere Zahlung
+INSURANCE: "Versandversicherung – ${cur} ${val('insurance')}" / "Falls Ihre Bestellung verloren geht, beschädigt oder gestohlen wird, ersetzen wir sie umgehend oder erstatten Ihnen den vollen Betrag."
+
+### 12. REVIEWS GRID (8 cards) — same heading as section 7
+REVIEW_4_NAME / REVIEW_4_TEXT … REVIEW_11_NAME / REVIEW_11_TEXT  [each 35–60 words, «…», varied ages ${(c.aud.match(/\d{2}\s*[–-]\s*\d{2}/) || [c.N.ages])[0]}, varied angles: ${c.N.reviewAngles}]
+CTA: "SICHERN SIE SICH IHREN 50 % - RABATT"
+
+### 13. CUSTOMER SERVICE (fixed)
+"Kundendienst-Experten" / "Nicht 100 % zufrieden mit Ihrer Bestellung? Wir werden alles tun, um das Problem zu lösen. Nutzen Sie die 30-Tage-Geld-zurück-Garantie* und testen Sie risikofrei." / "Unser Kundenservice ist von Montag bis Sonntag von 09:00 bis 22:00 Uhr erreichbar. Durchschnittliche Antwortzeit: 24 Stunden" / E-Mail: ${val('supportEmail')}
+
+### 14. FOOTER (fixed) + STICKY BAR
+"© ${val('storeDomain')} Allgemeine Geschäftsbedingungen | Datenschutzrichtlinie | Rückgaberichtlinie | *Haftungsausschluss" + short medical disclaimer
+STICKY: product image · "${P}" · "${cur} ${pr[1].price}.- 50 % RABATT" · button "JETZT BESTELLEN ➞"
+
+${c.nicheId === 'intimacy_m' ? `## REFERENCE EXAMPLE (tone & length – from a finished page, product "Erovyn™ Regenerations-Creme")
+HERO_H1: "Erovyn™ Regenerations-Creme für Männer | Mehr Selbstvertrauen im Schlafzimmer – ganz ohne Pillen"
+HERO_BULLET: "Creme statt Pille – einfach äusserlich auftragen"
+S2_TITLE: "Warum immer mehr Männer zur Creme statt zur Tablette greifen"
+S2_P2: "**Erovyn™ Regenerations-Creme** wird genau dort aufgetragen, wo es darauf ankommt: direkt auf der Haut. In wenigen Sekunden angewendet – ohne Wasserglas, ohne Wartezeit nach der Einnahme und ohne den Umweg über den Magen."
+FAQ_3_A: "Erovyn™ wird als Pflegecreme für Männer angeboten. Eine dauerhafte Penisvergrösserung durch äusserlich angewendete Cremes ist wissenschaftlich nicht nachgewiesen. Deshalb garantieren wir keine Veränderung von Länge oder Umfang."` : `## STYLE EXAMPLE (from a DIFFERENT product – copy only tone, sentence length and format, NOT the topic)
+HERO_H1 format: "Erovyn™ Regenerations-Creme für Männer | Mehr Selbstvertrauen – ganz ohne Pillen"  → «Produkt™ Produkttyp für Zielgruppe | Hauptnutzen – ohne grösste Hürde der Alternative»
+S2_P2 format: "**Erovyn™ Regenerations-Creme** wird genau dort aufgetragen, wo es darauf ankommt. In wenigen Sekunden angewendet – ohne Wasserglas und ohne Wartezeit."  → bold product name first, then concrete everyday benefit, short sentences.
+Honest FAQ format: "… ist wissenschaftlich nicht nachgewiesen. Deshalb garantieren wir keine …" → name the limit clearly, then the guarantee.`}
+`;
+}
+
+/* ---------- IMAGE PROMPTS ---------- */
+function refs(type){ const r = imagesFor(type); return r.length ? 'Competitor reference image(s) – use for composition/style only, replace their packaging with ours, copy no logos/text:\n' + r.map(u => '  ' + u).join('\n') : 'Competitor reference: none assigned (generate from description).'; }
+function buildPrompts(){
+  const c = ctx(), fi = c.fi;
+  const PACK = `the exact ${c.P} ${fi.pack} from the attached packaging reference${c.packGiven ? ' (' + c.pack + (c.sub ? ', text on pack: "' + c.sub + '"' : '') + ')' : (c.sub ? ' (text on pack: "' + c.sub + '")' : '')} – reproduce the packaging faithfully`;
+  const NEG = 'No text, no letters, no watermarks, no competitor branding, nothing explicit or nude, no extra logos.';
+  const SPEC = 'Square 1:1, 1254×1254 px, photorealistic, premium advertising look.';
+  const step = c.steps; const N = c.N;
+  const prompt = (id, title, sectionInfo, body, extra = '') => `
+────────────────────────────────────────
+## ${id} — ${title}
+Used in: ${sectionInfo}
+${body}
+${SPEC}
+${NEG}${extra ? '\n' + extra : ''}`;
+  const where = t => { const s = SECTION_SLOTS.find(([k]) => STATE.order[k] === t); return s ? s[1] : 'not used in current order'; };
+
+  return `# IMAGE PROMPTS – ${c.P}
+Workflow:
+1. Create / upload the PACKAGING REFERENCE first (image 0) and attach it to EVERY generation so the product always looks identical.
+2. Generate images WITHOUT text. Add all labels (VORHER / NACHHER, step titles, "2x/3x/5x" badges) afterwards in Canva / Photopea (font Poppins Bold; gold #eba628, dark #252A32, white).
+3. Export: 1254×1254 PNG/JPG (hero GIF/WebP 1000×1000, max. ~3 MB). Upload to Funnelish and copy the image URLs into the page.
+Category: ${N.label}. Model: ${c.model}${c.modelNote}. Target customer: ${c.aud}. Product form: ${c.form} (${fi.pack}).
+If the competitor content shows that a scene below does not fit this product, adapt it to the product's real use (facts in the BRIEF win over these defaults).
+${prompt('0', 'PACKAGING REFERENCE (do this first)', 'reference for every other image + bundles + sticky bar',
+`Studio product photo of ${c.P}: ${c.pack}${c.sub ? ', printed text "' + c.sub + '"' : ''}. Single ${fi.pack} only (no box), front view, centred, sharp label, soft studio light, plain white background (cut out to transparent PNG afterwards).
+${refs('PRODUCT')}`, 'If you already have a real product photo, use that instead and only cut it out (transparent background).')}
+${prompt('1', 'MAIN IMAGE (hero) – composite', 'Hero, left side (most important image)',
+`Final layout (assemble in Canva/Photopea, 1000×1000):
+  • Main character fills the right/centre: ${c.model}, ${N.hero}.
+  • Top-left: two small rounded thumbnails side by side – "VORHER" (frustrated, cool light) and "NACHHER" (happy, warm light) with label pills.
+  • Left-middle: a CIRCLE (~28% of width, white/gold ring) containing a looping GIF (frames below).
+  • Bottom-left foreground: the product (${fi.pack}${/tube|bottle|jar/.test(fi.pack) ? ' + optional box' : ''}) standing on a dark marble surface, sharp, soft glow.
+Generate these parts:
+  1a BASE SCENE: ${c.model}, ${N.hero}, subject on the right two-thirds; keep the top-left corner and left-middle area calm/empty for overlays; ${PACK} standing on a dark marble surface bottom-left.
+  1b BEFORE THUMB: same person, ${N.before}.
+  1c AFTER THUMB: same person, ${N.after}.
+  1d GIF FRAMES (3–4 frames, same framing, for the circle): close-up of the product being used (${step[0][2]}) → ${step[1][2]} → glowing effect / relieved smile. Animate in ezgif.com (0.6–0.8 s per frame, loop), export GIF or animated WebP.
+${refs('MAIN')}`)}
+${prompt('2', 'BEFORE & AFTER', where('BEFORE_AFTER'),
+`Vertical split with a thin white divider. LEFT (before): the same main character (${c.model.replace(/,?\s*(and |with )?(a )?(natural, )?warm smile/g, '')}) ${N.before}. RIGHT (after): the same person ${N.after}. Bottom centre, across the divider: ${PACK} on dark marble. Keep the top-left and top-right corners empty for the labels "Vorher" (dark pill) and "Nachher" (gold pill), added afterwards.
+${refs('BEFORE_AFTER')}`)}
+${prompt('3', 'MECHANICS (how it works)', where('MECHANICS'),
+`Clean, scientific 3D medical-style illustration on a dark blue background: ${c.mech}. On the right side ${PACK} standing upright with a soft golden rim light. Translucent, glowing, premium; ${N.explicit ? 'no genitals, no explicit anatomy' : 'friendly and clean, no blood, no gore'}.
+${refs('MECHANICS')}`)}
+${prompt('4', 'STEP BY STEP (3 steps)', where('STEP_BY_STEP'),
+`Generate 3 separate square photos, then combine them in a layout (beige background #f9f6f0, title "So einfach geht’s – in 3 Schritten", each row = photo left + gold number circle + step title + one line):
+  4a STEP 1 – "${step[0][0]}" (${step[0][1]}): ${step[0][2]}, ${c.P} label visible.
+  4b STEP 2 – "${step[1][0]}" (${step[1][1]}): ${step[1][2]}.
+  4c STEP 3 – "${step[2][0]}" (${step[2][1]}): ${step[2][2]}.
+Alternative single image: main character holding the product on the left, 3 stacked rounded step tiles on the right with numbers 1–2–3 (labels added afterwards).
+${refs('STEP_BY_STEP')}`)}
+${prompt('5', 'DOCTOR / EXPERT', where('DOCTOR') + ' + crop of the face = expert avatar in the hero',
+`Photo of a trustworthy ${N.expert.replace(/^friendly /, 'friendly ')}, holding ${PACK} up near the chest with the label facing the camera and pointing at it with the other hand, confident smile. Head and shoulders well lit (the face will also be cropped as a round avatar).
+${refs('DOCTOR')}`)}
+${prompt('6', 'TESTIMONIAL', where('TESTIMONIAL'),
+`White background with 6 scattered polaroid-style photos of ${N.testi}, slightly rotated with soft shadows (all different people – no duplicates). Bottom centre, overlapping the polaroids: ${PACK}, sharp with a soft shadow. Bright, warm, authentic.
+${refs('TESTIMONIAL')}
+Review-photo references found on the competitor page:
+${imagesFor('REVIEW').map(u => '  ' + u).join('\n') || '  none'}`)}
+${prompt('7', 'CLOSING / OFFER IMAGE (after the testimonials)', where('CLOSING'),
+`The main character (${c.model}) in a cosy, bright living room with plants and soft daylight, holding ${PACK} towards the camera at chest height, label sharp and readable, gentle confident smile – "this is what helped me". Clean background, lots of trust.
+${refs('CLOSING')}`)}
+${prompt('8', 'BUNDLE IMAGES 1x / 2x / 3x / 5x', 'Package cards (Wählen Sie Ihr Paket)',
+`Best done by compositing (not AI): take the transparent packaging reference (product only, NO box – boxes look bulky) and place 1 / 2 / 3 / 5 copies side by side, slightly overlapping, centre one in front, soft contact shadows, warm beige gradient background (#faf7f1 → #e8e1d4), square 1000×1000. Add a gold circle badge top-right with "2x" / "3x" / "5x" (not on 1x).
+AI alternative: "${c.P} ${fi.pack} ×N standing in a row on a light beige studio background, soft shadows, identical packaging" – check every label.`)}
+${prompt('9', 'STICKY BAR PRODUCT', 'Bottom sticky order bar (small, ~56 px)', 'Transparent PNG of the single product (from image 0), 400×400, product filling ~95% of the height.')}
+${prompt('10', 'REVIEW PHOTOS (11)', '3 top review cards + 8 grid cards',
+`Realistic smartphone selfie portraits, natural light, everyday Swiss settings (car, office, garden, lake, living room), people ${(c.aud.match(/\d{2}\s*[–-]\s*\d{2}/) || [N.ages])[0]} years old matching the review names and genders (${c.isWomen ? 'mostly women' : c.isMixed ? 'mixed women and men' : 'mostly men, 1–2 partners'}), varied looks, authentic, not overly polished. One person per photo, square crop.
+${imagesFor('REVIEW').length ? 'Competitor review photos (style reference only):\n' + imagesFor('REVIEW').map(u => '  ' + u).join('\n') : ''}`)}
+`;
+}
+
+/* ---------- CHECKLIST ---------- */
+function buildChecklist(){
+  const c = ctx(); const old = val('oldNames');
+  return `# PRE-LAUNCH CHECKLIST – ${c.P}
+
+## A. Intake
+- [ ] Competitor link analysed, brief complete (no open questions left)
+- [ ] Product name, packaging reference and text on pack confirmed
+- [ ] Product facts checked with the supplier (size, ingredients, usage, warnings)
+
+## B. Copy
+- [ ] Every slot of the copy template filled (hero, sections, 11 reviews, 10 FAQ, packages)
+- [ ] Language rules: ${LANG_RULES[c.lang]}
+- [ ] Product name spelled identically everywhere (incl. ™)
+- [ ] Section texts match the section images (${SECTION_SLOTS.map(([k]) => IMAGE_TYPES[STATE.order[k]]).join(' → ')})
+
+## C. Compliance (Meta ads + Swiss law UWG / HMG)
+- [ ] NO unverifiable numbers (cm, %, "millions", study results)
+- [ ] NO cure / treatment / "clinically proven" / "instant" promises
+- [ ] FAQ answers the "big promise" question honestly (not proven / not guaranteed)
+- [ ] Expert quote is general (no invented studies); ideally a real expert with consent
+- [ ] Reviews are real or clearly replaced before scaling ads
+- [ ] Medical disclaimer in footer
+
+## D. Images
+- [ ] Packaging reference created first and used for all images
+- [ ] Main image: before/after thumbnails + circle GIF + product + main character
+- [ ] Section images match section titles: ${SECTION_SLOTS.map(([k, l]) => l.split(' (')[0] + ' = ' + IMAGE_TYPES[STATE.order[k]]).join(' · ')}
+- [ ] All text in images added manually and spelled correctly (Vorher / Nachher, steps)
+- [ ] Bundle images 1x / 2x / 3x / 5x show OUR product (product only, no box)
+- [ ] Sticky bar product image = OUR product
+- [ ] Expert avatar = crop of the doctor image
+- [ ] 11 review photos match names and genders
+- [ ] No competitor branding visible anywhere (zoom in on every label!)
+- [ ] People in competitor photos replaced/regenerated before scaling (licensing)
+- [ ] Hero GIF/WebP ≤ ~3 MB, other images ≤ ~500 KB
+
+## E. Template leftovers (search the whole page with Ctrl+F)
+- [ ] Old product names: ${old || '—'} → 0 results
+- [ ] FAQ: no duplicated questions (e.g. "…zufrieden bin?Was passiert…"), no stray characters (e.g. "richtig an?v")
+- [ ] Package images and package titles show the new product
+- [ ] Support e-mail text AND mailto link both = ${val('supportEmail')}
+- [ ] Footer links (AGB, Datenschutz, Rückgabe, Haftungsausschluss) point to ${val('storeDomain')}
+
+## F. Checkout & offer
+- [ ] Shopify variant IDs for 1x / 2x / 3x / 5x belong to the NEW product (click every button → correct product & price in checkout)
+- [ ] Shipping insurance (${c.cur} ${val('insurance')}) is added correctly / variant exists
+- [ ] Prices on page = prices in Shopify (${['1','2','3','5'].map(n => n + 'x ' + val('p' + n)).join(' · ')})
+- [ ] Countdown, "50 % Rabatt endet um 23:59 Uhr", stock counter (${val('stock')}) show correctly
+
+## G. QA
+- [ ] Mobile check (iPhone + Android): image above text in every section, nothing cut off
+- [ ] Desktop check
+- [ ] All images load (no broken images), page loads fast (< 3 s on 4G)
+- [ ] Every CTA scrolls to the package section
+- [ ] FAQ accordion opens/closes
+- [ ] Facebook pixel / tracking fires (ViewContent, InitiateCheckout)
+- [ ] Final read-through by a native speaker
+`;
+}
+
+/* ---------- MASTER PROMPT ---------- */
+function buildMaster(){
+  const c = ctx(), d = c.d;
+  const maxC = parseInt(val('maxChars')) || 12000;
+  let compText = (d.textBlocks || []).join('\n');
+  if (compText.length > maxC) compText = compText.slice(0, maxC) + '\n[…truncated]';
+  return `# TASK: Build the landing page kit for "${c.P}" (dropshipping) from a competitor page
+
+You are my landing-page copywriter and creative director. Read this whole message first.
+
+## WHO WE ARE / HOW WE WORK
+- We run a Swiss e-commerce store (${val('storeDomain')}) and sell products via Facebook ads to a landing page built in Funnelish.
+- Every landing page uses the SAME template structure (example: ${val('templateUrl')}). Only copy and images change.
+- For each new product I give you a competitor page selling the SAME product. Product facts must match the competitor; the copywriting must be NEW and follow our template structure.
+- Product category: ${c.N.label}. Product form: ${c.form} (${c.fi.pack}). Target customer: ${c.aud}. ⚠ These were auto-detected – if the competitor content clearly says otherwise, follow the content and tell me.
+- We create 7 main images (main, before & after, mechanics, step by step, doctor, testimonial, closing/offer image) + bundle images, sticky product image, expert avatar and review photos.
+- The hero MAIN image always shows: before/after thumbnails, a looping GIF inside a circle, the product, and the main character.
+- Every other image matches the title/topic of the section it sits in.
+
+## NON-NEGOTIABLE RULES
+1. Language of the landing page: ${LANG_RULES[c.lang]}
+2. Product name: "${c.P}" – spelled exactly like this everywhere.
+3. Compliance (Meta ads policy + Swiss law UWG/HMG): take the competitor's ANGLES, never their unverifiable claims. No unverifiable numbers ("+5 cm", "94 %", "hält 5 Tage", "2'500 Kunden") unless our supplier can prove them – otherwise soften ("mehrere Tage", "viele Kunden"), no "clinically proven", no invented studies/doctors, no cure/treatment promises, no "instant results". The FAQ must answer the "big promise" question honestly.
+4. Reviews and the expert quote are written as realistic placeholders; mark them as such in your notes.
+5. Never use the competitor's brand name, logo or packaging text.
+6. Text inside images is added manually afterwards – image prompts must ask for NO text.
+${c.d && c.d.url ? '7. If you can browse the web, open the competitor URL and the template URL to double-check facts and structure.' : ''}
+
+## WHAT I NEED FROM YOU (in this order)
+1. **Brief check** – list missing or uncertain facts (max. 5 short questions), then continue with sensible assumptions (mark them).
+2. **Full copy** – fill EVERY slot of the COPY TEMPLATE below, keep the slot IDs.
+3. **Final image prompts** – rewrite the IMAGE PROMPTS below into ready-to-paste prompts (one per image/part), adapted to this product.
+4. **Checklist items** – list which checklist points need my action for this product.
+
+${'='.repeat(60)}
+${buildBrief()}
+${'='.repeat(60)}
+${$('includeText').checked && compText ? `# COMPETITOR PAGE CONTENT (extracted – for facts & angles only, do not copy)\n${compText}\n${'='.repeat(60)}\n` : ''}${buildCopy()}
+${'='.repeat(60)}
+${buildPrompts()}
+${'='.repeat(60)}
+${buildChecklist()}`;
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+const TABS = [
+  ['master', '⭐ Master prompt', buildMaster, 'Everything in one – paste into a NEW chat (ChatGPT, Claude, Gemini …)'],
+  ['brief', 'Brief', buildBrief, 'Product facts, angles, risky claims, image plan'],
+  ['copy', 'Copy template', buildCopy, 'All text slots of your template with rules & lengths'],
+  ['prompts', 'Image prompts', buildPrompts, 'Packaging ref + 7 main images + bundles + reviews'],
+  ['checklist', 'Checklist', buildChecklist, 'Pre-launch QA'],
+  ['images', 'Competitor images', null, 'Assign each competitor image to a slot – prompts update automatically']
+];
+
+function render(){
+  const tabs = $('tabs'); tabs.innerHTML = '';
+  const d = STATE.data;
+  TABS.forEach(([id, label]) => {
+    const b = document.createElement('button'); b.className = 'tab' + (STATE.tab === id ? ' active' : '');
+    b.innerHTML = label + (id === 'images' && d ? `<span class="cnt">${d.images.filter(i => !i.ui).length}</span>` : '') + (id === 'brief' && d && d.claims.length ? `<span class="cnt" style="background:#c0392b">${d.claims.length} ⚠</span>` : '');
+    b.onclick = () => { STATE.tab = id; render(); };
+    tabs.appendChild(b);
+  });
+  const panel = $('panel');
+  if (!d && !val('manualText')) {
+    if (STATE.tab === 'images') { panel.innerHTML = '<div class="empty">No competitor analysed yet.</div>'; return; }
+  }
+  const tab = TABS.find(t => t[0] === STATE.tab);
+  if (STATE.tab === 'images') return renderImages();
+  const text = tab[2]();
+  panel.innerHTML = `
+    <div class="out-head"><h3>${tab[1]}</h3><span class="meta">${tab[3]} · ${text.length.toLocaleString()} characters</span></div>
+    <div class="toolbar">
+      <button class="btn" id="copyBtn">📋 Copy</button>
+      <button class="btn sec" id="dlBtn">⬇ Download .md</button>
+      <button class="btn sec" id="dlAllBtn">⬇ Download all (one file)</button>
+    </div>
+    <pre class="out" id="outPre"></pre>`;
+  $('outPre').textContent = text;
+  $('copyBtn').onclick = () => copyText(text);
+  $('dlBtn').onclick = () => download(`${slug()}-${STATE.tab}.md`, text);
+  $('dlAllBtn').onclick = () => download(`${slug()}-landing-kit.md`, buildMaster());
+}
+
+function renderImages(){
+  const d = STATE.data; const panel = $('panel');
+  if (!d || !d.images.length) { panel.innerHTML = '<div class="empty">No images found. Paste image URLs in the fallback box on the left and click Analyze again.</div>'; return; }
+  const list = d.images.filter(i => STATE.showUi || !i.ui);
+  panel.innerHTML = `
+    <div class="out-head"><h3>Competitor images</h3><span class="meta">Set the slot for each image. Prompts and brief use these as references. ${d.images.filter(i => i.ui).length} icons/logos hidden.</span></div>
+    <div class="toolbar"><label style="margin:0;font-weight:500"><input type="checkbox" id="showUi" ${STATE.showUi ? 'checked' : ''}> Show icons / logos / payment images</label>
+    <button class="btn sec" id="copyUrls">📋 Copy all image URLs</button></div>
+    <div id="slotHint"></div>
+    <div class="imggrid" id="grid"></div>`;
+  const grid = $('grid');
+  const updateHint = () => {
+    const core = ['MAIN','BEFORE_AFTER','MECHANICS','STEP_BY_STEP','DOCTOR','TESTIMONIAL','PRODUCT'];
+    const missing = core.filter(t => !Object.values(STATE.slots).includes(t));
+    $('slotHint').innerHTML = missing.length
+      ? `<div class="hint">👉 <b>Quick check (30 sec):</b> the auto-guess is only a hint, because competitor filenames/alt texts are often meaningless (e.g. <i>me03.webp</i>). Use the dropdowns to mark the competitor's key images. Still unassigned: <b>${missing.map(t => IMAGE_TYPES[t]).join(' · ')}</b>. Then switch to <b>Master prompt</b> – it updates automatically. (Unassigned images are still listed in the brief with the text next to them.)</div>`
+      : `<div class="hint ok">✅ All key image types assigned. The Master prompt is up to date.</div>`;
+  };
+  updateHint();
+  list.forEach(img => {
+    const k = keyOf(img.url);
+    const card = document.createElement('div'); card.className = 'imgc' + (img.ui ? ' ui' : '');
+    const a = document.createElement('a'); a.href = img.url; a.target = '_blank'; a.rel = 'noopener'; a.className = 'ph';
+    const im = document.createElement('img'); im.loading = 'lazy'; im.src = img.url; im.referrerPolicy = 'no-referrer'; im.onerror = () => { im.style.display = 'none'; a.style.background = '#f3f3f3'; a.textContent = '⚠ preview blocked – click to open'; a.style.display = 'grid'; a.style.placeItems = 'center'; a.style.fontSize = '11px'; };
+    a.appendChild(im);
+    const info = document.createElement('div'); info.className = 'info'; info.textContent = (() => { try { return decodeURIComponent(fileName(img.url)); } catch { return fileName(img.url); } })().slice(0, 70) + ((img.ctx || img.after) ? ' · near: "' + (img.ctx || img.after).slice(0, 60) + '…"' : '');
+    const sel = document.createElement('select');
+    Object.entries(IMAGE_TYPES).forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; if (STATE.slots[k] === v) o.selected = true; sel.appendChild(o); });
+    sel.onchange = () => { STATE.slots[k] = sel.value; saveLast(); updateHint(); };
+    card.append(a, info, sel); grid.appendChild(card);
+  });
+  $('showUi').onchange = e => { STATE.showUi = e.target.checked; renderImages(); };
+  $('copyUrls').onclick = () => copyText(d.images.filter(i => !i.ui).map(i => `[${IMAGE_TYPES[STATE.slots[keyOf(i.url)]]}] ${i.url}`).join('\n'));
+}
+
+function slug(){ return (val('productName') || 'product').toLowerCase().replace(/[™®]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'product'; }
+function copyText(t){
+  (navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Copied ✓')).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Copied ✓');
+  });
+}
+function download(name, text){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+function setStatus(msg, cls){ const s = $('status'); s.className = 'status ' + cls; s.textContent = msg; }
+
+/* =====================================================================
+   MAIN ACTION
+   ===================================================================== */
+$('analyzeBtn').onclick = async () => {
+  const url = val('competitorUrl'); const manual = val('manualText'); const manualImgs = val('manualImages');
+  if (!url && !manual) { setStatus('Please paste a competitor URL (or the page text in the fallback box).', 'err'); return; }
+  saveSettings();
+  const btn = $('analyzeBtn'); btn.disabled = true; btn.textContent = '⏳ Analyzing…';
+  setStatus('Fetching competitor page… (pages built with JavaScript can take up to ~40 s via the reader fallback)', 'busy');
+  let raw = null;
+  if (url) { raw = await fetchCompetitor(url); if (!raw.ok && !manual) { setStatus('❌ Could not fetch the page.\n' + (raw.error || '') + '\n\nFallback: open the page, press Ctrl+A → Ctrl+C, paste into "Competitor page text" (left, under Fallbacks) and click Analyze again.', 'err'); btn.disabled = false; btn.textContent = '🔎 Analyze competitor & generate kit'; return; } }
+  try {
+    STATE.data = analyze(raw && raw.ok ? raw : null, manual, manualImgs);
+    if (raw && !raw.ok) STATE.data.notes = raw.notes || [];
+    STATE.slots = {}; ensureSlots(); saveLast();
+    const d = STATE.data;
+    if (val('productForm') === 'auto') toast('Detected form: ' + d.formGuess);
+    setStatus(`✅ Done via ${d.via || 'manual text'}.\nCompetitor product: ${d.compName || '?'} · category: ${(NICHES[d.nicheGuess] || NICHES.generic).label} · form: ${d.formGuess} · audience: ${d.audienceGuess} · language: ${d.lang}${d.otherBrands && d.otherBrands.length ? '\nIgnored leftovers on their page: ' + d.otherBrands.join(', ') : ''}\n${d.textBlocks.length} text blocks · ${d.images.filter(i => !i.ui).length} images · ${d.claims.length} risky claims flagged${d.notes.length ? '\nNote: ' + d.notes.join(' | ') : ''}${d.textBlocks.length < 15 ? (d.via === 'manual' ? '\nTip: paste more of the competitor page (FAQ, reviews, offer) for a richer brief.' : '\n⚠ Very little text found – consider pasting the page text in the fallback box.') : ''}`, 'ok');
+    STATE.tab = 'master'; render();
+  } catch (e) { console.error(e); setStatus('❌ Analysis error: ' + e.message, 'err'); }
+  btn.disabled = false; btn.textContent = '🔎 Analyze competitor & generate kit';
+};
+
+$('resetBtn').onclick = () => { if (!confirm('Reset store/template settings to defaults?')) return; ['templateUrl','storeDomain','supportEmail','language','p1','p2','p3','p5','currency','insurance','stock','oldNames','maxChars'].forEach(f => $(f).value = DEFAULTS[f]); STATE.order = { ...DEFAULTS.order }; renderOrderGrid(); saveSettings(); render(); toast('Settings reset'); };
+
+// live update of outputs when inputs change
+FIELDS.forEach(f => $(f).addEventListener('input', () => { saveSettings(); if (STATE.data && STATE.tab !== 'images') render(); }));
+$('includeText').addEventListener('change', () => { saveSettings(); render(); });
+
+loadSettings(); renderOrderGrid(); render();
+</script>
+</body>
+</html>

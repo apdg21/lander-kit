@@ -1,0 +1,13 @@
+{
+  "name": "landing-kit-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paste a competitor link → get brief, copy template, image prompts and checklist for the vital-konzept landing page template.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
