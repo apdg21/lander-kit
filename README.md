@@ -9,6 +9,7 @@ Paste a competitor product page link and get everything you need to build a new 
 | Copy template | Every text slot of the template (hero, S1–S5, reviews, FAQ, packages …) with word limits and rules |
 | Image prompts | Packaging reference → main/hero composite → before/after → mechanics → steps → doctor → testimonial → closing → bundles → sticky → review photos |
 | Checklist | Intake, copy, compliance (Meta + UWG/HMG), images, template leftovers, checkout, QA |
+| 🛠 **Page builder** | Paste the AI's **COPY BLOCK** (one line per slot, `S1_TITLE: …`) + image links → preview → download the finished `index.html`. Fills prices, stock, Shopify variant IDs and the section order from your settings. Works fully in the browser. |
 | Competitor images | All images found on the page. Mark which one is the main / before-after / doctor … with the dropdowns |
 
 Every tab has **Copy**, **Download .md** and **Download all**.
@@ -43,6 +44,14 @@ If all fail (login walls, heavy bot protection), open **Fallbacks**:
 Then click Analyze again. Manual mode works without any URL.
 
 ---
+
+## Page builder (after the AI has written the copy)
+1. The master prompt asks the AI for a **COPY BLOCK** at the end of Phase 1 (plain lines `SLOT_ID: text`).
+2. Open the **🛠 Page builder** tab and paste that block into box 1.
+3. Box 2: image links, one per line `file: URL` (e.g. `hauptbild.webp: https://i.imgur.com/….gif`). Click **Insert list of all image file names** to get all names. Files without a link stay `images/<file>` (then upload an `images/` folder next to index.html). Links from "Our existing images" are used too.
+4. Box 3: full product name + Shopify variant IDs (1x/2x/3x/5x/insurance).
+5. **Build page** → the report shows missing slots (they appear as `{{…}}`) and images that are still local → preview below → **Download index.html** / **Copy HTML** (for Funnelish custom HTML).
+The master prompt itself is unchanged – any AI can still build the full page on its own.
 
 ## Page order (template since Oct 2026)
 Hero (animated main image) → "Bekannt aus" press strip → **S1 animated GIF** (problem → product in action → relief) → **S2 before & after** → **S3 product / how it works** (becomes **Material** when the competitor names materials/ingredients) → **S4 expert** → 3 reviews → **Closing «Bestellen Sie heute und …» with the step-by-step image** (3 steps + guarantee + 3-pack CTA) → trust badges → FAQ → packages → review grid.

@@ -925,6 +925,11 @@ TOPBAR: "👀 Exklusives Angebot auf Facebook!! 👏🏻" / "Nur auf dieser Seit
 HEADER: logo + button "JETZT BESTELLEN"
 PRESS STRIP: logos + "★★★★★ Bekannt aus…"
 
+## 00. PRODUCT (used in title, alt texts, footer)
+PRODUCT_FULL: [${P} + product type, e.g. "${P} Pflegecreme für Hände und Füsse"]
+HERO_IMAGE_ALT: [short alt text for the main image, 4–8 words]
+DISCLAIMER: [1–2 sentences, footer: results vary individually / no substitute for medical advice (or a safety/use notice for non-health products)]
+
 ## 1. HERO (left: MAIN image · right: content)
 HERO_REVIEW_NAME: [Swiss first name + initial, e.g. "Martin M."] (date = automatically 5 days ago)
 HERO_REVIEW_TEXT: [50–70 words, first person, in «…», realistic, mentions a concrete everyday detail and the product form]
@@ -938,7 +943,8 @@ HERO_BULLET_4: [≤ 55 chars – product detail (size, form, discreet)]
 HERO_BULLET_5: "30 Tage Geld-zurück-Garantie" (or similar guarantee line)
 EXPERT_HEADING: "Worte des Experten:"
 EXPERT_QUOTE: [45–65 words, in «…», general and true statements, no study numbers]
-EXPERT_NAME: [e.g. "– Dr. Markus Steiner – ${c.N.expertDe}" – fitting specialty; fictional placeholder until a real expert agrees]
+EXPERT_NAME: [e.g. "Dr. Markus Steiner" – fictional placeholder until a real expert agrees]
+EXPERT_TITLE: [fitting specialty, e.g. "${c.N.expertDe}"]
 HERO_CTA: "JETZT BESTELLEN ➞" · GUARANTEE_LINE: "100 % Zufriedenheit oder Geld zurück" · payment icons
 ${sec('S1', 2)}
 ${sec('S2', 3)}
@@ -1201,6 +1207,7 @@ ${swiss ? '8. Swiss formatting: always "ss", never "ß"; quotes «…»; prices 
 ## PHASE 1 – TEXT (always)
 1. **Brief check** – list missing or uncertain facts (max. 5 short questions), then continue immediately with sensible assumptions (mark them).
 2. **Full copy** – fill EVERY slot of the COPY TEMPLATE below, keep the slot IDs (they are identical to the {{TOKENS}} in the sample page).
+   Then give the complete copy AGAIN as ONE code block titled **COPY BLOCK** in plain slot format – one slot per line, \`SLOT_ID: text\`, no brackets, no comments, **bold** allowed, every slot on its own line (PRODUCT_FULL, HERO_IMAGE_ALT, DISCLAIMER, HERO_…, EXPERT_NAME, EXPERT_TITLE, S1_TITLE … S4_P3, CLOSING_TITLE … CLOSING_P3, REVIEW_1_NAME … REVIEW_11_TEXT, FAQ_1_Q … FAQ_10_A). I paste this block into our Page builder.
 3. **Final image prompts** – adapt the IMAGE PROMPTS below into ready-to-use prompts for the files of Phase 2 / Step 3.
 4. **Checklist items** – which checklist points need my action for this product.
 
@@ -1285,15 +1292,172 @@ ${'='.repeat(60)}
 /* =====================================================================
    RENDER
    ===================================================================== */
+/* =====================================================================
+   PAGE BUILDER – paste the copy (slot format) + image links -> finished index.html
+   ===================================================================== */
+const PB_FILES = ['logo.png','hauptbild.webp','animation.webp','vorher-nachher.jpg','mechanik.jpg','material.jpg','experte.jpg','experte-avatar.jpg','schritte.jpg',
+  'paket-1x.jpg','paket-2x.jpg','paket-3x.jpg','paket-5x.jpg','sticky.png',
+  'review-01.jpg','review-02.jpg','review-03.jpg','review-04.jpg','review-05.jpg','review-06.jpg','review-07.jpg','review-08.jpg','review-09.jpg','review-10.jpg','review-11.jpg'];
+const PB_TYPE_FILE = { GIF: 'animation.webp', BEFORE_AFTER: 'vorher-nachher.jpg', MECHANICS: 'mechanik.jpg', MATERIAL: 'material.jpg', DOCTOR: 'experte.jpg',
+  STEP_BY_STEP: 'schritte.jpg', TESTIMONIAL: 'testimonial.jpg', CLOSING: 'abschluss.jpg' };
+const PB_KEYS = ['pbCopy','pbImages','pbFull','pbV1','pbV2','pbV3','pbV5','pbVins'];
+let PB = JSON.parse(localStorage.getItem('lkg_builder') || '{}');
+function pbSave(){ PB_KEYS.forEach(k => { if ($(k)) PB[k] = $(k).value; }); localStorage.setItem('lkg_builder', JSON.stringify(PB)); }
+
+function pbParseSlots(txt){
+  const out = {}; let cur = null;
+  txt = (txt || '').replace(/\s+·\s+(?=\**[A-Z][A-Z0-9_]{2,}\**\s*:)/g, '\n');      // "REVIEW_1_NAME: x · REVIEW_1_TEXT: y"
+  for (const line of txt.split(/\r?\n/)) {
+    const m = line.match(/^\s*(?:[-*]\s+)?\**`?([A-Z][A-Z0-9_]{2,})`?\**\s*[:=]\s?(.*)$/);
+    if (m) { cur = m[1]; out[cur] = m[2]; continue; }
+    if (/^\s*(#{1,6}\s|```|={3,}|-{3,}|\(fixed)/.test(line)) { cur = null; continue; }
+    if (cur && line.trim()) out[cur] += ' ' + line.trim();
+  }
+  for (const k in out) {
+    let v = out[k].trim();
+    v = v.replace(/^"(.*)"$/s, '$1').replace(/^„(.*)“$/s, '$1').trim();
+    if (/^\[[^\]]*\]$/.test(v)) v = '';                                              // unfilled placeholder "[40–60 words]"
+    out[k] = v;
+  }
+  return out;
+}
+function pbHtml(v){
+  return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/&lt;(\/?)strong&gt;/g, '<$1strong>');
+}
+function pbImageMap(){
+  const map = {};
+  const lines = (val('pbImages') + '\n' + ($('existingImages') ? $('existingImages').value : '')).split('\n');
+  for (const l of lines) {
+    const m = l.match(/^\s*([^:\s][^:]*?)\s*[:=]\s*(https?:\/\/\S+)\s*$/); if (!m) continue;
+    let k = m[1].trim().toLowerCase().replace(/^images\//, '').replace(/\s+/g, '-');
+    const hit = PB_FILES.concat(['testimonial.jpg','abschluss.jpg']).find(f => f === k || f.replace(/\.[a-z]+$/, '') === k.replace(/\.[a-z]+$/, '')
+      || (k === 'hauptbild' && f === 'hauptbild.webp') || (/^(gif|animation|section-?1)/.test(k) && f === 'animation.webp')
+      || (/^review-?(\d+)$/.test(k) && f === 'review-' + String(k.match(/(\d+)/)[1]).padStart(2, '0') + '.jpg'));
+    if (hit && !map[hit]) map[hit] = m[2];
+  }
+  return map;
+}
+function pbPrices(h){
+  const cur = val('currency') || 'CHF';
+  const P = n => { const p = parsePrice(val('p' + n)); return { a: parseFloat(String(p.price).replace(',', '.')), b: parseFloat(String(p.compare).replace(',', '.')) }; };
+  const f = x => (Math.round(x * 100) / 100).toString();
+  [5, 3, 2, 1].forEach(n => {
+    const p = P(n); if (isNaN(p.a) || isNaN(p.b)) return;
+    const i0 = h.indexOf('images/paket-' + n + 'x.jpg'); const i1 = h.indexOf('data-qty="' + n + '"', i0); if (i0 < 0 || i1 < 0) return;
+    let blk = h.slice(i0, i1);
+    blk = blk.replace(/<div class="per">[^<]*<small>/, `<div class="per">${cur} ${f(Math.round(p.a / n))} <small>`)
+             .replace(/Gesamt [^<]*<s>[^<]*<\/s>/, `Gesamt ${cur} ${f(p.a)} <s>${cur} ${f(p.b)}</s>`)
+             .replace(/Sie sparen [^<]*/, `Sie sparen ${cur} ${f(p.b - p.a)}`);
+    h = h.slice(0, i0) + blk + h.slice(i1);
+  });
+  const p1 = P(1);
+  if (!isNaN(p1.a)) {
+    h = h.replace(/<span class="price">[^<]*<\/span>/, `<span class="price">${cur} ${f(p1.a)}.–</span>`)
+         .replace(/<span class="price-old">[^<]*<\/span>/, `<span class="price-old">${cur} ${f(p1.b)}</span>`)
+         .replace(/<span class="save-badge">[^<]*<\/span>/, `<span class="save-badge">Sie sparen ${cur} ${f(p1.b - p1.a)}.–</span>`)
+         .replace(/<div class="p">[^<]*<em>/, `<div class="p">${cur} ${f(p1.a)}.– <em>`);
+  }
+  if (val('insurance')) h = h.replace(/Versandversicherung – <em>[^<]*<\/em>/, `Versandversicherung – <em>${cur} ${val('insurance')}</em>`);
+  return h;
+}
+function pbBuild(){
+  const S = pbParseSlots(val('pbCopy'));
+  const P = (val('productName') || S.PRODUCT || 'Produkt™').trim();
+  const full = (val('pbFull') || S.PRODUCT_FULL || '').trim() || P;
+  let expName = S.EXPERT_NAME || '', expTitle = S.EXPERT_TITLE || '';
+  expName = expName.replace(/^[–-]\s*/, '');
+  if (!expTitle && / [–-] /.test(expName)) { const i = expName.search(/ [–-] /); expTitle = expName.slice(i + 3).trim(); expName = expName.slice(0, i).trim(); }
+  const h1 = S.HERO_H1 || '';
+  const V = Object.assign({}, S, {
+    PRODUCT: P, PRODUCT_FULL: full, PRODUCT_KEY: (P.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'produkt'),
+    EXPERT_NAME: expName, EXPERT_TITLE: expTitle,
+    HERO_IMAGE_ALT: S.HERO_IMAGE_ALT || (h1.includes('|') ? h1.split('|').pop().trim() : 'Vorher und Nachher'),
+    DISCLAIMER: S.DISCLAIMER || 'Die Ergebnisse können individuell variieren. Die Angaben auf dieser Seite ersetzen keine ärztliche Beratung.'
+  });
+  let h = TPL_PAGE.replace(/<!--\s*\n=+\s*\n\s*REFERENCE TEMPLATE[\s\S]*?-->\s*\n/, '');
+  // section images follow the current order (e.g. MATERIAL in section 3)
+  const DEF = { S1: 'animation.webp', S2: 'vorher-nachher.jpg', S3: 'mechanik.jpg', S4: 'experte.jpg', CLOSING: 'schritte.jpg' };
+  Object.entries(DEF).forEach(([k, f]) => { h = h.replace(`<div class="sec-img"><img src="images/${f}"`, `<div class="sec-img"><img src="@@${k}@@"`); });
+  Object.keys(DEF).forEach(k => { h = h.replace(`@@${k}@@`, 'images/' + (PB_TYPE_FILE[STATE.order[k]] || DEF[k])); });
+  if (STATE.order.S3 === 'MATERIAL') h = h.replace('alt="So funktioniert {{PRODUCT}}"', 'alt="{{PRODUCT}} Material"');
+  // tokens
+  const missing = [];
+  h = h.replace(/\{\{([A-Z0-9_]+)\}\}/g, (m, k) => { const v = V[k]; if (v === undefined || v === '') { missing.push(k); return m; } return ['PRODUCT_KEY'].includes(k) ? v : pbHtml(v); });
+  // images
+  const map = pbImageMap(); let local = new Set();
+  h = h.replace(/src="images\/([^"]+)"/g, (m, f) => { if (map[f]) return `src="${map[f]}"`; if (f === 'hauptbild.webp' && map['hauptbild.gif']) return `src="${map['hauptbild.gif']}"`; local.add(f); return m; });
+  // prices + Shopify
+  h = pbPrices(h);
+  const vid = n => (val('pbV' + n) || '').replace(/\D/g, '');
+  h = h.replace(/variants: \{ 1:'', 2:'', 3:'', 5:'' \}/, `variants: { 1:'${vid(1)}', 2:'${vid(2)}', 3:'${vid(3)}', 5:'${vid(5)}' }`)
+       .replace(/insuranceVariant: '',/, `insuranceVariant: '${vid('ins')}',`);
+  if (val('stock')) h = h.replace(/stock: \d+/, 'stock: ' + parseInt(val('stock')));
+  if (val('storeDomain') && val('storeDomain') !== 'vital-konzept.ch') h = h.split('vital-konzept.ch').join(val('storeDomain'));
+  if (val('supportEmail')) h = h.replace(/support@vital-konzept\.ch|support@[a-z0-9.-]+\.[a-z]{2,}/gi, val('supportEmail'));
+  return { html: h, missing: [...new Set(missing)], local: [...local], slots: Object.keys(S).length, P };
+}
+function renderBuilder(){
+  const panel = $('panel');
+  const ord = SECTION_SLOTS.map(([k]) => IMAGE_TYPES[STATE.order[k]]).join(' → ');
+  panel.innerHTML = `
+    <div class="out-head"><h3>🛠 Page builder</h3><span class="meta">Paste the copy from the AI + image links → finished page (index.html). The master prompt stays the same.</span></div>
+    <div class="hint">How: 1) Master prompt → new AI chat. 2) The AI returns a <b>COPY BLOCK</b> (one line per slot: <code>S1_TITLE: …</code>) – paste it below. 3) Paste the image links (or leave empty and upload an <code>images/</code> folder next to index.html). 4) <b>Build page</b> → preview → download.<br>Section order used: ${ord} <small>(change under Store &amp; template settings → Section → image order)</small></div>
+    <label><b>1. Copy from the AI</b> <small>(slot format, e.g. <code>HERO_H1: …</code>, <code>S1_P2: **Produkt™ …** …</code>, <code>FAQ_1_Q: … · FAQ_1_A: …</code>)</small></label>
+    <textarea id="pbCopy" style="min-height:220px;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace"></textarea>
+    <label style="margin-top:10px"><b>2. Image links</b> <small>(one per line <code>file: URL</code> – empty lines/files = <code>images/&lt;file&gt;</code>; links from “Our existing images” are used too)</small></label>
+    <textarea id="pbImages" style="min-height:120px;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace" placeholder="hauptbild.webp: https://i.imgur.com/xxxx.gif&#10;animation.webp: https://i.imgur.com/yyyy.gif&#10;vorher-nachher.jpg: https://…"></textarea>
+    <div class="toolbar" style="margin-top:6px"><button class="btn sec" id="pbList">＋ Insert list of all image file names</button></div>
+    <label style="margin-top:6px"><b>3. Product &amp; Shopify</b></label>
+    <div class="row"><div><label>Full product name <small>(name + product type, e.g. “Magvital™ Magnesium-Gummies”)</small></label><input type="text" id="pbFull" placeholder="from PRODUCT_FULL in the copy, else the product name"></div></div>
+    <div class="row" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+      <div><label>Variant ID 1x</label><input type="text" id="pbV1"></div><div><label>2x</label><input type="text" id="pbV2"></div>
+      <div><label>3x</label><input type="text" id="pbV3"></div><div><label>5x</label><input type="text" id="pbV5"></div>
+      <div><label>Insurance</label><input type="text" id="pbVins"></div>
+    </div>
+    <small style="color:var(--muted)">Prices, currency, stock, store domain and support e-mail come from <b>Store &amp; template settings</b>. Empty variant IDs = buttons show a notice instead of a broken checkout.</small>
+    <div class="toolbar" style="margin-top:12px">
+      <button class="btn" id="pbBuild">🛠 Build page</button>
+      <button class="btn sec" id="pbDl" disabled>⬇ Download index.html</button>
+      <button class="btn sec" id="pbCopyHtml" disabled>📋 Copy HTML</button>
+      <button class="btn sec" id="pbOpen" disabled>↗ Open in new tab</button>
+    </div>
+    <div id="pbReport"></div>
+    <iframe id="pbFrame" style="width:100%;height:760px;border:1px solid var(--line);border-radius:10px;margin-top:10px;display:none;background:#fff"></iframe>`;
+  PB_KEYS.forEach(k => { if ($(k)) { $(k).value = PB[k] || ''; $(k).addEventListener('input', pbSave); } });
+  $('pbList').onclick = () => {
+    const have = pbImageMap(); const cur = val('pbImages').trim();
+    const listed = new Set(cur.split('\n').map(l => l.split(':')[0].trim().toLowerCase()).filter(Boolean));
+    const need = PB_FILES.filter(f => !have[f] && !listed.has(f) && !(f === 'material.jpg' && STATE.order.S3 !== 'MATERIAL') && !(f === 'mechanik.jpg' && STATE.order.S3 === 'MATERIAL'));
+    $('pbImages').value = (cur ? cur + '\n' : '') + need.map(f => f + ': ').join('\n'); pbSave();
+  };
+  let last = null;
+  $('pbBuild').onclick = () => {
+    pbSave(); last = pbBuild();
+    const r = last; const ok = !r.missing.length;
+    $('pbReport').innerHTML = `<div class="hint ${ok ? 'ok' : ''}" style="margin-top:10px">
+      ${r.slots} slots read from the copy · product: <b>${r.P.replace(/</g, '&lt;')}</b><br>
+      ${ok ? '✅ All text slots filled.' : `⚠ <b>${r.missing.length} slot(s) missing</b> (shown as {{…}} on the page): <code>${r.missing.join(', ')}</code> – ask the AI for these lines and paste them into the copy box.`}<br>
+      ${r.local.length ? `🖼 ${r.local.length} image(s) still local (<code>images/…</code>): ${r.local.join(', ')} – paste their links above, or upload an images/ folder with these names next to index.html.` : '🖼 All images are links – the file works anywhere.'}
+      ${['1','2','3','5'].some(n => !val('pbV' + n)) ? '<br>🛒 Variant IDs missing → package buttons show a notice.' : ''}</div>`;
+    const fr = $('pbFrame'); fr.style.display = 'block'; fr.srcdoc = r.html;
+    ['pbDl','pbCopyHtml','pbOpen'].forEach(id => $(id).disabled = false);
+  };
+  $('pbDl').onclick = () => last && download('index.html', last.html);
+  $('pbCopyHtml').onclick = () => last && copyText(last.html);
+  $('pbOpen').onclick = () => { if (!last) return; const u = URL.createObjectURL(new Blob([last.html], { type: 'text/html' })); window.open(u, '_blank'); };
+}
+
 const TABS = [
   ['master', '⭐ Master prompt', buildMaster, 'Everything in one – paste into a NEW chat (ChatGPT, Claude, Gemini …)'],
   ['brief', 'Brief', buildBrief, 'Product facts, angles, risky claims, image plan'],
   ['copy', 'Copy template', buildCopy, 'All text slots of your template with rules & lengths'],
-  ['prompts', 'Image prompts', buildPrompts, 'Packaging ref + 7 main images + bundles + reviews'],
+  ['prompts', 'Image prompts', buildPrompts, 'Packaging ref + hero + section-1 GIF + section images + bundles + reviews'],
   ['checklist', 'Checklist', buildChecklist, 'Pre-launch QA'],
   ['template', 'Sample page', () => TPL_PAGE, 'Reference template with {{TOKENS}} – the exact structure every page must follow'],
   ['imgscript', 'Image script', () => TPL_IMGSCRIPT, 'Python script that composes hero GIF, labels, steps, bundles, sticky, logo'],
-  ['images', 'Competitor images', null, 'Assign each competitor image to a slot – prompts update automatically']
+  ['images', 'Competitor images', null, 'Assign each competitor image to a slot – prompts update automatically'],
+  ['builder', '🛠 Page builder', null, 'Paste the AI copy + image links → finished index.html']
 ];
 
 function render(){
@@ -1306,6 +1470,7 @@ function render(){
     tabs.appendChild(b);
   });
   const panel = $('panel');
+  if (STATE.tab === 'builder') return renderBuilder();
   if (!d && !val('manualText')) {
     if (STATE.tab === 'images') { panel.innerHTML = '<div class="empty">No competitor analysed yet.</div>'; return; }
   }
@@ -1369,7 +1534,7 @@ function copyText(t){
     const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Copied ✓');
   });
 }
-function download(name, text){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+function download(name, text){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: /\.html?$/.test(name) ? 'text/html' : 'text/markdown' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 function setStatus(msg, cls){ const s = $('status'); s.className = 'status ' + cls; s.textContent = msg; }
 
 /* =====================================================================
