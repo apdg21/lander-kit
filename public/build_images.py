@@ -6,10 +6,13 @@
 #   source/before-after.png  ONE image split in two halves: left = before, right = after (same person)
 #   source/mechanics.png     how it works (close-up / cut-away)            (skip if MECHANICS is not in the image plan)
 #   source/material.png      OPTIONAL: product + close-up of its material(s) -> material.jpg (MATERIAL section)
-#   source/step1.png step2.png step3.png   the 3 usage steps
+#   source/step1.png step2.png step3.png   the 3 usage steps                -> schritte.jpg (CLOSING section)
 #   source/expert.png        expert portrait (face upper middle)
-#   source/testimonial.png   collage of happy customers with the product
-#   source/closing.png       main character, happy result / offer mood
+#   source/result.png        main character, happy result (3rd frame of the hero circle + section-1 fallback)
+#   source/s1.gif            OPTIONAL: the GIF for SECTION 1 (ours, or the competitor's demo GIF) -> animation.webp/.gif
+#                            if missing, section 1 is animated from before-after (left half) -> step2 -> result
+# Page order (vital-konzept.ch): hero · press · S1 animation · S2 before/after · S3 mechanik/material · S4 expert ·
+#                                3 reviews · CLOSING with schritte.jpg · badges · FAQ · packages · review grid
 # Run:  python3 build_images.py      (edit CONFIG first – all on-image text lives here, NEVER in the AI image)
 import os, urllib.request
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
@@ -29,7 +32,14 @@ CONFIG = {
     # crop boxes as fractions (left, top, right, bottom) of the source image – adjust after looking at the images
     'thumb_before': (0.04, 0.15, 0.46, 0.57), 'thumb_after': (0.54, 0.05, 0.96, 0.47),
     'circle_frames': [('step1.png', (0.25, 0.10, 0.85, 0.70)), ('step2.png', (0.25, 0.15, 0.85, 0.75)),
-                      ('closing.png', (0.25, 0.02, 0.70, 0.47))],
+                      ('result.png', (0.25, 0.02, 0.70, 0.47))],
+    # ---- SECTION 1 animation (images/animation.webp + animation.gif) ----
+    's1_gif': 'source/s1.gif',                # our GIF or the competitor's demo GIF (used if the file exists)
+    's1_cover': None,                          # competitor GIF only: (l, t, r, b) fractions of the area where THEIR product
+                                               # / logo appears (often bottom-right) -> blurred + our product placed on top.
+                                               # Check several frames! e.g. (0.62, 0.78, 1.0, 1.0). None = nothing to cover.
+    's1_every': 2,                             # keep every n-th frame (smaller file)
+    's1_labels': ('Das Problem', 'Die Anwendung', 'Spürbar besser'),  # captions for the fallback animation (no GIF)
     'expert_face': (0.5, 0.24, 0.17),         # avatar centre x, centre y, half-size (fractions)
     'cutout': True,                            # build images/produkt.png from source/product-raw.png
 }
@@ -109,8 +119,46 @@ st.save(O + 'schritte.jpg', quality=88)
 ex = src('expert.png'); ex.resize((1000, 1000), Image.LANCZOS).save(O + 'experte.jpg', quality=88)
 fx, fy, fr = CONFIG['expert_face']; c = (int(fx * 1024), int(fy * 1024)); r = int(fr * 1024)
 ex.crop((c[0] - r, c[1] - r, c[0] + r, c[1] + r)).resize((200, 200), Image.LANCZOS).save(O + 'experte-avatar.jpg', quality=90)
-for k, n in [('testimonial.png', 'testimonial'), ('closing.png', 'abschluss')]:
-    src(k).resize((1000, 1000), Image.LANCZOS).save(O + n + '.jpg', quality=88)
+
+# ---------- 2b. SECTION 1 animation: images/animation.webp (page) + images/animation.gif (hosts without webp, e.g. imgur) ----------
+def save_anim(frames, durs, name):
+    frames[0].save(O + name + '.webp', save_all=True, append_images=frames[1:], duration=durs, loop=0, quality=72, method=4)
+    if len(frames) > 60:                        # GIF copy: every 2nd frame (WebP keeps all) -> smaller file
+        durs = [durs[i] + (durs[i + 1] if i + 1 < len(durs) else 0) for i in range(0, len(durs), 2)]; frames = frames[::2]
+    small = [f.resize((440, 440), Image.LANCZOS) for f in frames]
+    # own 255-colour palette per frame + dithering: avoids colour blotches on skin / grey scenes
+    g = [f.quantize(colors=255, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.FLOYDSTEINBERG) for f in small]
+    g[0].save(O + name + '.gif', save_all=True, append_images=g[1:], duration=durs, loop=0, optimize=True)
+    print(name, 'webp', round(os.path.getsize(O + name + '.webp') / 1e6, 2), 'MB · gif', round(os.path.getsize(O + name + '.gif') / 1e6, 2), 'MB')
+if os.path.exists(CONFIG['s1_gif']):
+    gif = Image.open(CONFIG['s1_gif']); W0, H0 = gif.size; frames, durs = [], []
+    cov = CONFIG['s1_cover']
+    if cov:
+        cb = fbox(cov, W0, H0); bw, bh = cb[2] - cb[0], cb[3] - cb[1]
+        feather = Image.new('L', (bw, bh), 0); ImageDraw.Draw(feather).rounded_rectangle((14, 14, bw - 1 - (14 if cb[2] < W0 else -40), bh - 1 - (14 if cb[3] < H0 else -40)), radius=30, fill=255)
+        feather = feather.filter(ImageFilter.GaussianBlur(12))
+        pt = fitp(bh - 8)
+        if pt.width > bw - 8: pt = pt.resize((bw - 8, max(1, int(pt.height * (bw - 8) / pt.width))), Image.LANCZOS)
+    for i in range(0, gif.n_frames, CONFIG['s1_every']):
+        gif.seek(i); fr = gif.convert('RGBA')
+        if cov:
+            reg = fr.crop(cb).filter(ImageFilter.GaussianBlur(28)); fr.paste(reg, cb[:2], feather)   # hide their product / logo (soft edges)
+            shadowed(fr, pt, (cb[2] - pt.width - 4, cb[3] - pt.height - 4), blur=10, off=(0, 8), alpha=90)
+        frames.append(ImageOps.fit(fr.convert('RGB'), (600, 600), Image.LANCZOS))
+        durs.append(max(40, gif.info.get('duration', 50)) * CONFIG['s1_every'])
+    save_anim(frames, durs, 'animation')
+else:                                           # fallback: problem -> application -> result, cross-faded, with captions
+    bas = src('before-after.png')
+    scenes = [ImageOps.fit(bas.crop((0, 0, 512, 1024)), (600, 600), centering=(0.5, 0.4)),
+              ImageOps.fit(src('step2.png'), (600, 600)), ImageOps.fit(src('result.png'), (600, 600))]
+    def cap(img, text):
+        im = img.convert('RGBA'); d = ImageDraw.Draw(im); pill(d, (300, 530), text, font('Bold', 26), GOLD + (255,), (255, 255, 255), anchor='c')
+        return im.convert('RGB')
+    frames, durs = [], []
+    for i in range(3):
+        a, b = scenes[i], scenes[(i + 1) % 3]; frames.append(cap(a, CONFIG['s1_labels'][i])); durs.append(1500)
+        for k in (1, 2, 3, 4): frames.append(Image.blend(a, b, k / 5)); durs.append(70)
+    save_anim(frames, durs, 'animation')
 
 # ---------- 3. bundles (product only, NO box), sticky image, text logo ----------
 def bundle(n):

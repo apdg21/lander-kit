@@ -11,9 +11,9 @@
     {{PRODUCT}} = short name with (TM) e.g. "Glavex™" · {{PRODUCT_FULL}} = name + product type
     e.g. "Glavex™ Magnet-Scheibenreiniger" · {{PRODUCT_KEY}} = lowercase slug (countdown storage key).
  3. Images = relative paths images/<file>:
-    logo.png · hauptbild.webp (animated main image, GIF copy: hauptbild.gif) · vorher-nachher.jpg ·
-    mechanik.jpg · schritte.jpg · experte.jpg · experte-avatar.jpg · testimonial.jpg · abschluss.jpg ·
-    paket-1x.jpg paket-2x.jpg paket-3x.jpg paket-5x.jpg · review-01.jpg ... review-11.jpg · sticky.png
+    logo.png · hauptbild.webp (animated main image, GIF copy: hauptbild.gif) · animation.webp (animated
+    section-1 image, GIF copy: animation.gif) · vorher-nachher.jpg · mechanik.jpg (or material.jpg) ·
+    experte.jpg · experte-avatar.jpg · schritte.jpg · paket-1x.jpg paket-2x.jpg paket-3x.jpg paket-5x.jpg · review-01.jpg ... review-11.jpg · sticky.png
     The https:// icons (Swiss flag, Trustpilot, check marks, payment icons, press logos, trust badges,
     insurance and support images) are our shared store assets – keep them unchanged.
  4. Prices (store standard): 1x CHF 35 (statt 70) · 2x CHF 50 (statt 140) · 3x CHF 65 (statt 210) ·
@@ -38,13 +38,17 @@
                           .press-label ("★★★★★ Bekannt aus…") sits fixed in the middle on white with a white
                           glow (box-shadow), so logos slide behind it. Keep ALL of that (CSS + JS line).
                           In a static screenshot it simply looks like one row of logos.
-  5-8b SECTIONS .sec      2 columns: text (.sec-text: h3 + 3 <p> + CTA + urgency line with .stock)
-                          and a SQUARE image (.sec-img). Background alternates: .beige on S1, S3, S5.
+  5-8 SECTIONS .sec       2 columns: text (.sec-text: h3 + 3 <p> + CTA + urgency line with .stock)
+                          and a SQUARE image (.sec-img). Background alternates: .beige on S1, S3.
                           .sec-grid.reverse = image LEFT (S2, S4). On mobile the image is always above the text.
-                          S1 before/after · S2 mechanics · S3 step by step · S4 expert · S5 testimonial
+                          CURRENT ORDER (vital-konzept.ch, since Oct 2026):
+                          S1 ANIMATED GIF (images/animation.webp: problem -> product in action -> relief)
+                          S2 before/after · S3 product / how it works (mechanik.jpg; MATERIAL variant: material.jpg)
+                          S4 expert. There is NO separate testimonial section and NO separate steps section.
   9  3 REVIEW CARDS #top-reviews .rev (photo + flag, name, "Verifizierter Käufer", stars + text)
                           + "MEHR ANSEHEN" (#more-btn: mobile = expands cards, desktop = scrolls to #bewertungen)
- 10  CLOSING  .sec        guarantee section "30 Tage ohne Risiko", last paragraph completely bold
+ 10  CLOSING  .sec        "Bestellen Sie heute und …" section with the STEP-BY-STEP image (schritte.jpg):
+                          P1 = the 3 steps in one paragraph, P2 = 30-day guarantee, P3 completely bold CTA
  11  TRUST    .trust      3 badges (fixed)
  12  FAQ      .faq        accordion, 2 columns x 5: .faq-item > button.faq-q + .faq-a (script opens/closes)
  13  PACKS    #pakete     4 cards 5x/3x/2x/1x; .pack.popular = highlighted 3x; .pack-btn[data-qty] builds the
@@ -398,7 +402,7 @@ a{color:inherit}
   </div>
 </div>
 
-<!-- ===================== 5. SEKTION 1 – Vorher-Nachher (Bild rechts) ===================== -->
+<!-- ===================== 5. SEKTION 1 – Animiertes GIF (Bild rechts) – problem → product in action → relief ===================== -->
 <section class="sec beige">
   <div class="sec-grid">
     <div class="sec-text">
@@ -411,10 +415,10 @@ a{color:inherit}
         <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
       </div>
     </div>
-    <div class="sec-img"><img src="images/vorher-nachher.jpg" alt="Vorher – Nachher" loading="lazy"></div>
+    <div class="sec-img"><img src="images/animation.webp" alt="{{PRODUCT}} – so wirkt es" loading="lazy"></div>
   </div>
 </section>
-<!-- ===================== 6. SEKTION 2 – Mechanik (Bild links) ===================== -->
+<!-- ===================== 6. SEKTION 2 – Vorher-Nachher (Bild links) ===================== -->
 <section class="sec">
   <div class="sec-grid reverse">
     <div class="sec-text">
@@ -427,10 +431,10 @@ a{color:inherit}
         <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
       </div>
     </div>
-    <div class="sec-img"><img src="images/mechanik.jpg" alt="So funktioniert {{PRODUCT}}" loading="lazy"></div>
+    <div class="sec-img"><img src="images/vorher-nachher.jpg" alt="Vorher – Nachher" loading="lazy"></div>
   </div>
 </section>
-<!-- ===================== 7. SEKTION 3 – Schritt für Schritt (Bild rechts) ===================== -->
+<!-- ===================== 7. SEKTION 3 – Produkt / So funktioniert es (Bild rechts) – MATERIAL variant: images/material.jpg ===================== -->
 <section class="sec beige">
   <div class="sec-grid">
     <div class="sec-text">
@@ -443,7 +447,7 @@ a{color:inherit}
         <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
       </div>
     </div>
-    <div class="sec-img"><img src="images/schritte.jpg" alt="In 3 Schritten" loading="lazy"></div>
+    <div class="sec-img"><img src="images/mechanik.jpg" alt="So funktioniert {{PRODUCT}}" loading="lazy"></div>
   </div>
 </section>
 <!-- ===================== 8. SEKTION 4 – Experte (Bild links) ===================== -->
@@ -460,22 +464,6 @@ a{color:inherit}
       </div>
     </div>
     <div class="sec-img"><img src="images/experte.jpg" alt="Experte" loading="lazy"></div>
-  </div>
-</section>
-<!-- ===================== 8b. TESTIMONIAL-SEKTION (Bild rechts) ===================== -->
-<section class="sec beige">
-  <div class="sec-grid">
-    <div class="sec-text">
-      <h3>{{S5_TITLE}}</h3>
-      <p>{{S5_P1}}</p>
-      <p>{{S5_P2}}</p>
-      <p>{{S5_P3}}</p>
-      <div class="cta-wrap">
-        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
-        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
-      </div>
-    </div>
-    <div class="sec-img"><img src="images/testimonial.jpg" alt="Zufriedene Kunden" loading="lazy"></div>
   </div>
 </section>
 
@@ -504,7 +492,7 @@ a{color:inherit}
 </div>
 <button class="more-btn" id="more-btn">MEHR ANSEHEN</button>
 
-<!-- ===================== 10. SEKTION 5 – Abschluss / Garantie (Bild rechts) ===================== -->
+<!-- ===================== 10. ABSCHLUSS – «Bestellen Sie heute und …» + Schritt-für-Schritt-Bild (Bild rechts) ===================== -->
 <section class="sec beige" style="margin-top:40px">
   <div class="sec-grid">
     <div class="sec-text">
@@ -517,7 +505,7 @@ a{color:inherit}
         <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
       </div>
     </div>
-    <div class="sec-img"><img src="images/abschluss.jpg" alt="{{PRODUCT}} – 30 Tage ohne Risiko" loading="lazy"></div>
+    <div class="sec-img"><img src="images/schritte.jpg" alt="{{PRODUCT}} – so einfach geht’s in 3 Schritten" loading="lazy"></div>
   </div>
 </section>
 

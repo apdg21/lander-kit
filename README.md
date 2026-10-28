@@ -18,6 +18,7 @@ Every tab has **Copy**, **Download .md** and **Download all**.
 ## How to use (daily workflow)
 
 1. Paste the **competitor URL** and enter **your product name** (e.g. `Erovyn™`).
+   Optional: paste the link to **our GIF for section 1** (field "Section-1 GIF"). Empty = the competitor's demo GIF is reused with our product on top, or the animation is built from the scenes.
 2. Optional but recommended: describe your **packaging** and the **text on the pack**.
    Check the auto-detected **Product category** (dental, joints/pain, skin, hair, weight, sleep, feet, men's intimacy, other). It controls the scenes, the expert (dentist, orthopaedist, urologist …), the FAQ examples and the target group. Fix it in the dropdown if it's wrong.
 3. Click **Analyze competitor & generate kit** (takes 2–25 seconds).
@@ -42,6 +43,10 @@ If all fail (login walls, heavy bot protection), open **Fallbacks**:
 Then click Analyze again. Manual mode works without any URL.
 
 ---
+
+## Page order (template since Oct 2026)
+Hero (animated main image) → "Bekannt aus" press strip → **S1 animated GIF** (problem → product in action → relief) → **S2 before & after** → **S3 product / how it works** (becomes **Material** when the competitor names materials/ingredients) → **S4 expert** → 3 reviews → **Closing «Bestellen Sie heute und …» with the step-by-step image** (3 steps + guarantee + 3-pack CTA) → trust badges → FAQ → packages → review grid.
+No separate testimonial or steps section any more. Old saved settings (5-section order) are reset to this order automatically. You can still change the order under *Store & template settings → Section → image order*.
 
 ## What the AI produces with the Master prompt
 The master prompt is self-contained: a new chat (Arena, ChatGPT, Claude, Gemini …) needs no other context.
