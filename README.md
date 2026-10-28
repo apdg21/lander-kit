@@ -43,6 +43,24 @@ Then click Analyze again. Manual mode works without any URL.
 
 ---
 
+## What the AI produces with the Master prompt
+The master prompt is self-contained: a new chat (Arena, ChatGPT, Claude, Gemini …) needs no other context.
+- **Phase 1 (any AI):** brief check (max. 5 questions + marked assumptions), full copy for every template slot, image prompts, checklist.
+- **Phase 2 (AIs with tools, e.g. Arena Agent Mode):** a 9-step playbook. The AI must:
+  1. generate the product reference (no text);
+  2. define one main character;
+  3. generate 9 scene images with fixed file names;
+  4. check each image (blur badges and number plates);
+  5. compose all page images with the included Python script (animated hero with before/after thumbnails, looping circle, product and character; labels; 3-step layout; bundles with the product only; sticky image; logo; expert avatar);
+  6. make the 11 review photos;
+  7. fill the **sample page** 1:1;
+  8. test, then deliver a zip plus a standalone HTML file with all images embedded;
+  9. report what is still a placeholder.
+- **Sample page (reference template):** the complete working page code with `{{TOKENS}}` (same IDs as the copy slots). A comment at the top explains every section, including the moving "Bekannt aus" logo strip (`.press`). It is included in the master prompt by default. It is also its own tab, so you can download it as `landing-template.html`.
+- **Image script:** `build_images.py` (Python, Pillow + numpy). It is included in the master prompt by default and has its own tab for download.
+- Prompt length: about 95k characters with both included. If a chat refuses text that long, untick "Include sample page" / "Include image script" (Options) and attach the two downloaded files instead.
+- Tip: in Arena use **Agent Mode**, which has image and file tools. Image tools often allow about 10 images per turn: the first turn makes the product plus 9 scenes, the next makes the review photos. Reply "weiter" to continue.
+
 ## Deploy (pick one)
 
 ### Option A — Vercel (recommended, free)
@@ -80,6 +98,8 @@ PORT=8080 node server.js  # other port
 ## Files
 ```
 public/index.html            whole app (UI + parsing + output builders), works standalone
+public/template.html         sample page (reference template with {{TOKENS}}) – also embedded in index.html
+public/build_images.py       reference image script – also embedded in index.html
 lib/fetchCore.js             shared page fetcher (Chrome UA, SSRF guard, 4 MB cap, reader fallback, Shopify JSON)
 server.js                    local / VPS server (static + /api/fetch)
 api/fetch.js                 Vercel serverless function

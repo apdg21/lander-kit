@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<!--
+=====================================================================================
+ REFERENCE TEMPLATE – vital-konzept.ch landing page (sample with {{TOKENS}})
+=====================================================================================
+ HOW TO USE
+ 1. Copy this file 1:1. Do NOT change the CSS, class names, ids or the <script>.
+    Only replace the {{TOKENS}}, the image files and (only if the brief says so) the prices.
+ 2. {{TOKENS}} = slot IDs of the COPY TEMPLATE (HERO_H1, S1_TITLE, S1_P1 ... FAQ_10_A, REVIEW_11_TEXT).
+    **bold** in the copy -> <strong>...</strong>. Every S*_P2 starts with <strong>{{PRODUCT_FULL}}</strong>.
+    {{PRODUCT}} = short name with (TM) e.g. "Glavex™" · {{PRODUCT_FULL}} = name + product type
+    e.g. "Glavex™ Magnet-Scheibenreiniger" · {{PRODUCT_KEY}} = lowercase slug (countdown storage key).
+ 3. Images = relative paths images/<file>:
+    logo.png · hauptbild.webp (animated main image, GIF copy: hauptbild.gif) · vorher-nachher.jpg ·
+    mechanik.jpg · schritte.jpg · experte.jpg · experte-avatar.jpg · testimonial.jpg · abschluss.jpg ·
+    paket-1x.jpg paket-2x.jpg paket-3x.jpg paket-5x.jpg · review-01.jpg ... review-11.jpg · sticky.png
+    The https:// icons (Swiss flag, Trustpilot, check marks, payment icons, press logos, trust badges,
+    insurance and support images) are our shared store assets – keep them unchanged.
+ 4. Prices (store standard): 1x CHF 35 (statt 70) · 2x CHF 50 (statt 140) · 3x CHF 65 (statt 210) ·
+    5x CHF 95 (statt 350) · Versandversicherung CHF 5. They appear in: hero .price-row, the 4 .pack cards,
+    the sticky bar.
+ 5. Shopify: fill CONFIG.variants (+ insuranceVariant) at the top of the <script>. Empty = buttons show
+    a notice instead of a broken checkout. Never reuse variant IDs from another product.
+
+ SECTION MAP (top -> bottom) – what each block is and how it behaves
+  1  TOPBAR  .topbar      fixed orange bar: offer text + countdown #t-h/#t-m/#t-s (script, evergreen,
+                          restarts at 0, stored in localStorage)
+  2  HEADER  .header      logo (left) + small "JETZT BESTELLEN" button (all CTAs jump to #pakete)
+  3  HERO    .hero-grid   LEFT .hero-img = animated MAIN image (before/after thumbnails, looping circle,
+                          product, main character). RIGHT .hero-info = Trustpilot card .tp-card (date is set
+                          automatically to "5 days ago") -> H1 -> .price-row -> 5 .bullets with check icons
+                          -> .expert box (quote + round avatar) -> pulsing CTA -> guarantee line -> payments
+  4  PRESS   .press       "Bekannt aus" = ENDLESS MOVING LOGO STRIP (marquee). How it works:
+                          .press-track holds ONE set of logos; the script line
+                          track.innerHTML += track.innerHTML duplicates them, and CSS
+                          @keyframes marquee slides the track from translateX(0) to translateX(-50%) in 28s,
+                          so the row scrolls left forever without a jump. .press has overflow:hidden.
+                          .press-label ("★★★★★ Bekannt aus…") sits fixed in the middle on white with a white
+                          glow (box-shadow), so logos slide behind it. Keep ALL of that (CSS + JS line).
+                          In a static screenshot it simply looks like one row of logos.
+  5-8b SECTIONS .sec      2 columns: text (.sec-text: h3 + 3 <p> + CTA + urgency line with .stock)
+                          and a SQUARE image (.sec-img). Background alternates: .beige on S1, S3, S5.
+                          .sec-grid.reverse = image LEFT (S2, S4). On mobile the image is always above the text.
+                          S1 before/after · S2 mechanics · S3 step by step · S4 expert · S5 testimonial
+  9  3 REVIEW CARDS #top-reviews .rev (photo + flag, name, "Verifizierter Käufer", stars + text)
+                          + "MEHR ANSEHEN" (#more-btn: mobile = expands cards, desktop = scrolls to #bewertungen)
+ 10  CLOSING  .sec        guarantee section "30 Tage ohne Risiko", last paragraph completely bold
+ 11  TRUST    .trust      3 badges (fixed)
+ 12  FAQ      .faq        accordion, 2 columns x 5: .faq-item > button.faq-q + .faq-a (script opens/closes)
+ 13  PACKS    #pakete     4 cards 5x/3x/2x/1x; .pack.popular = highlighted 3x; .pack-btn[data-qty] builds the
+                          Shopify cart link; #insurance checkbox adds the insurance variant
+ 14  REVIEW GRID #bewertungen  8 cards (4 columns desktop) + big CTA "SICHERN SIE SICH IHREN 50 % - RABATT"
+ 15  SUPPORT  .support    customer service block (fixed text + support e-mail)
+ 16  FOOTER   .footer     legal links + {{DISCLAIMER}}
+ 17  STICKY   #stickybar  fixed bottom bar (product image, name, price, CTA); appears after scrolling past the
+                          hero (script toggles class .show)
+=====================================================================================
+-->
+
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{PRODUCT_FULL}} | 50 % Rabatt</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   {{PRODUCT}} LANDER – Struktur nach dem vital-konzept.ch Lander-Template
+   Farben 1:1 aus der Originalseite übernommen
+   ============================================================ */
+:root{
+  --accent:#eba628;       /* Buttons, Countdown, Badges (neu, wie Originalseite) */
+  --accent-dark:#d4911a;
+  --green:#4c7056;
+  --green-dark:#3d5c46;
+  --check:#197C16;        /* Hervorhebungen, beliebtestes Paket */
+  --text:#303030;
+  --muted:#636A7B;
+  --beige:#f9f6f0;        /* Abwechselnde Sektionen */
+  --navy:#0f2d53;         /* Paket-Titel */
+  --red:#ff0000;
+  --tp:#00B67A;
+  --card-bg:#F0F8FB;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;color:var(--text);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px}
+img{max-width:100%;display:block}
+a{color:inherit}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.narrow{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* ---------- Top Countdown-Leiste ---------- */
+.topbar{position:sticky;top:0;z-index:60;background:var(--accent);color:#fff;font-family:'Roboto',sans-serif;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:nowrap}
+.topbar .msg{text-align:center;line-height:1.25}
+.topbar .msg b{display:block;font-size:15px}
+.topbar .msg span{font-size:13px;font-weight:700}
+.timer{display:flex;gap:8px;list-style:none}
+.timer li{text-align:center;font-size:11px;line-height:1.1}
+.timer li strong{display:block;background:#fff;color:#111;border-radius:4px;font-size:14px;font-weight:700;min-width:30px;padding:5px 4px;margin-bottom:3px}
+
+/* ---------- Header ---------- */
+.header{padding:34px 0 18px}
+.header .container{display:flex;align-items:center;justify-content:space-between}
+.logo{width:175px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;font-family:'Open Sans',sans-serif;font-weight:700;letter-spacing:.5px;border-radius:40px;transition:transform .15s ease,background .15s ease;cursor:pointer;border:0}
+.btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn-sm{font-size:19px;padding:10px 30px}
+.btn-lg{font-size:21px;padding:16px 20px;width:100%;max-width:430px}
+.btn-pulse{animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(235,166,40,.5)}50%{box-shadow:0 0 0 10px rgba(235,166,40,0)}}
+
+/* ---------- Hero ---------- */
+.hero{padding:10px 0 40px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.hero-img{border-radius:6px;overflow:hidden;aspect-ratio:1/1}
+.hero-img img{width:100%;height:100%;object-fit:cover}
+.tp-card{border:1px solid #d6e6ec;background:var(--card-bg);border-radius:12px;padding:12px 14px;font-family:'Roboto',sans-serif;margin-bottom:14px}
+.tp-head{display:flex;align-items:center;gap:10px;font-size:13px}
+.tp-head .flag{width:32px;border-radius:2px}
+.tp-head .name{font-weight:700;font-size:14px}
+.tp-head .date{font-size:12px;color:#444;margin-left:auto}
+.tp-head .tp-logo{width:66px}
+.tp-head .tp-stars{width:72px}
+.tp-card p{font-size:13px;line-height:1.45;margin:10px 0;color:#222}
+.tp-foot{display:flex;align-items:center;gap:22px;font-size:12px;border-top:1px solid #d6e6ec;padding-top:8px}
+.tp-foot img{width:84px}
+.hero h1{font-size:30px;line-height:1.22;font-weight:700;margin:6px 0 14px}
+.price-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.price{color:var(--red);font-size:30px;font-weight:700}
+.price-old{text-decoration:line-through;color:#555;font-size:17px}
+.save-badge{margin-left:auto;margin-right:40px;background:var(--accent);color:#fff;font-size:12px;font-weight:600;padding:5px 16px;border-radius:30px}
+.bullets{list-style:none;margin:6px 0 18px}
+.bullets li{display:flex;align-items:center;gap:12px;font-size:17px;padding:6px 0 6px 6px}
+.bullets img{width:26px;flex:0 0 26px}
+.expert{display:flex;gap:12px;background:var(--card-bg);border-left:4px solid var(--green);border-radius:10px;padding:14px 14px 14px 16px;box-shadow:0 4px 14px rgba(0,0,0,.07);font-family:'Roboto',sans-serif;margin-bottom:18px}
+.expert h4{font-size:16px;margin-bottom:8px}
+.expert p{font-size:15px;line-height:1.42}
+.expert small{display:block;margin-top:12px;font-size:14px}
+.expert img{width:72px;height:72px;border-radius:50%;object-fit:cover;align-self:center;flex:0 0 72px}
+.cta-wrap{text-align:center}
+.guarantee{font-style:italic;color:var(--check);font-size:15px;margin:10px 0 14px}
+.payments{width:100%;max-width:470px;margin:0 auto}
+
+/* ---------- Bekannt aus (Marquee) ---------- */
+.press{position:relative;overflow:hidden;padding:18px 0 26px}
+.press-track{display:flex;gap:56px;width:max-content;animation:marquee 28s linear infinite;align-items:center}
+.press-track img{height:52px;width:auto;opacity:.9}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.press-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:6px 14px;text-align:center;font-family:'Roboto',sans-serif;font-weight:700;font-size:15px;z-index:2;box-shadow:0 0 24px 24px #fff}
+.press-label img{width:96px;margin:0 auto 2px}
+
+/* ---------- Inhalts-Sektionen ---------- */
+.sec{padding:52px 0}
+.sec.beige{background:var(--beige)}
+.sec-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:44px;align-items:center;max-width:1100px;margin:0 auto;padding:0 20px}
+.sec-grid.reverse .sec-img{order:-1}
+.sec-img img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:var(--radius)}
+.sec h2,.sec h3{font-size:27px;line-height:1.22;font-weight:700;margin-bottom:26px}
+.sec p{font-size:17px;line-height:1.48;margin-bottom:20px;padding-left:4px}
+.sec p strong{font-weight:600}
+.urgency{font-size:13px;color:#444;margin-top:10px;text-align:center}
+.urgency b{color:var(--red)}
+.sec .cta-wrap{margin-top:8px}
+
+/* ---------- Bewertungen ---------- */
+.reviews-head{text-align:center;font-family:'Roboto',sans-serif;padding:46px 20px 26px}
+.reviews-head .stars{color:#f5c518;font-size:28px;letter-spacing:6px}
+.reviews-head h3{font-size:26px;font-weight:700;margin-top:4px}
+.reviews-head h4{font-size:24px;font-weight:700}
+.rev-grid{display:grid;gap:16px;max-width:1160px;margin:0 auto;padding:0 20px}
+.rev-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.rev-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.rev{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.14);font-family:'Roboto',sans-serif;display:flex;flex-direction:column}
+.rev>img{width:100%;aspect-ratio:1/1.08;object-fit:cover}
+.rev-meta{display:flex;align-items:center;gap:8px;padding:8px 10px 0;font-size:12px}
+.rev-meta .flag{width:30px}
+.rev-meta .who{font-weight:700;line-height:1.2}
+.rev-meta .verified{color:var(--check);font-weight:500;line-height:1.2;text-align:center}
+.rev-meta .vt{width:110px;margin-left:auto}
+.rev-grid.cols-4 .rev-meta{flex-wrap:wrap}.rev-grid.cols-4 .rev-meta .vt{margin-left:0;width:100px;flex-basis:100%;max-width:100px}
+.rev p{font-size:14px;line-height:1.38;padding:10px 12px 16px;color:#222}
+.more-btn{display:block;margin:22px auto 0;background:#fff;border:2px solid var(--green);color:var(--navy);font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;padding:7px 48px;border-radius:30px;cursor:pointer;text-decoration:none;width:max-content}
+.more-btn:hover{background:var(--green);color:#fff}
+
+/* ---------- Trust Badges ---------- */
+.trust{text-align:center;padding:42px 20px 28px}
+.trust h4{font-family:'Roboto',sans-serif;font-size:21px;font-weight:700;margin-bottom:24px}
+.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1120px;margin:0 auto}
+.trust-item{display:flex;align-items:center;gap:16px;justify-content:center;text-align:left}
+.trust-item img{width:120px;height:auto}
+.trust-item span{font-size:22px;font-weight:500;line-height:1.2;text-transform:uppercase}
+
+/* ---------- FAQ ---------- */
+.faq{padding:30px 20px 40px;max-width:1160px;margin:0 auto}
+.faq h4{text-align:center;font-size:23px;font-weight:700;margin-bottom:22px}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;align-items:start}
+.faq-item{border-bottom:1px solid #eee}
+.faq-q{width:100%;background:none;border:0;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:#222;padding:12px 0;cursor:pointer}
+.faq-q::after{content:'';width:8px;height:8px;border-right:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);flex:0 0 8px;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(-135deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-a p{font-size:14.5px;line-height:1.55;padding:0 0 14px;color:#444}
+
+/* ---------- Pakete ---------- */
+.packs{padding:30px 20px 10px;text-align:center;scroll-margin-top:70px}
+.packs h2{font-size:35px;color:var(--navy);font-weight:700}
+.packs .sub{color:var(--muted);font-size:16px;margin:4px 0 24px}
+.pack-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1080px;margin:0 auto;align-items:stretch}
+.pack{border:2px solid #e6ecef;border-radius:14px;overflow:hidden;background:#fff;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.pack:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+.pack-tag{background:#f3f7f8;color:var(--green);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 6px}
+.pack.popular{border-color:var(--check);transform:scale(1.03)}
+.pack.popular .pack-tag{background:var(--check);color:#fff}
+.pack-body{padding:12px 14px 16px;display:flex;flex-direction:column;flex:1}
+.pack-img{background:#f6f2ea;border-radius:10px;aspect-ratio:1/1;overflow:hidden;margin-bottom:14px}
+.pack-img img{width:100%;height:100%;object-fit:cover}
+.pack h3{font-size:19px;color:var(--navy);font-weight:700}
+.pack .stars{color:#f5c518;font-size:13px;letter-spacing:2px;margin:2px 0 8px}
+.pack .stars span{color:#666;letter-spacing:0;margin-left:4px}
+.pack .per{font-size:27px;font-weight:700;color:var(--navy)}
+.pack .per small{font-size:13px;font-weight:400;color:#666}
+.pack .total{font-size:13px;color:#555;margin:2px 0 8px}
+.pack .total s{color:#999;margin-left:6px}
+.pack .saving{display:inline-block;background:#eef3ef;color:var(--green-dark);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin:0 auto 14px}
+.pack-btn{margin-top:auto;display:block;border:2px solid var(--green-dark);color:var(--green-dark);border-radius:30px;padding:10px;font-weight:600;font-size:15px;text-decoration:none;transition:.15s}
+.pack-btn:hover,.pack.popular .pack-btn{background:var(--check);border-color:var(--check);color:#fff}
+.pack-perks{display:flex;justify-content:center;gap:34px;flex-wrap:wrap;color:#555;font-size:14px;margin:22px 0 26px}
+.pack-perks span::before{content:'✓';color:var(--check);font-weight:700;margin-right:6px}
+.insurance{display:flex;align-items:center;gap:14px;max-width:760px;margin:0 auto;border:2px solid var(--check);border-radius:6px;padding:14px 16px;text-align:left;cursor:pointer}
+.insurance input{width:22px;height:22px;accent-color:var(--check);flex:0 0 22px}
+.insurance img{width:64px}
+.insurance b{font-size:14px}
+.insurance b em{color:var(--check);font-style:normal}
+.insurance p{font-size:12.5px;color:#555;margin-top:4px}
+
+/* ---------- Kundendienst & Footer ---------- */
+.support{text-align:center;padding:44px 20px 30px;max-width:900px;margin:0 auto}
+.support h3{font-size:34px;font-weight:700;margin-bottom:14px}
+.support p{font-size:16.5px;line-height:1.4;margin-bottom:14px}
+.support img{width:80px;margin:14px auto}
+.footer{background:#F7FFF8;text-align:center;font-family:'Roboto',sans-serif;font-size:14px;padding:18px 20px;color:#333}
+.footer a{text-decoration:none;margin:0 4px}
+.footer a:hover{text-decoration:underline}
+.disclaimer{max-width:900px;margin:10px auto 0;font-size:11.5px;color:#777;line-height:1.5}
+
+/* ---------- Sticky Bestell-Leiste ---------- */
+.stickybar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--beige);box-shadow:0 -4px 18px rgba(0,0,0,.08);transform:translateY(110%);transition:transform .3s ease}
+.stickybar.show{transform:translateY(0)}
+.stickybar .container{display:flex;align-items:center;gap:14px;padding-top:9px;padding-bottom:9px;max-width:1180px}
+.stickybar img{width:56px;height:56px;object-fit:contain}
+.stickybar h5{font-size:18px;font-weight:600;line-height:1.1}
+.stickybar .p{font-size:15px;font-weight:600}
+.stickybar .p em{color:var(--red);font-style:normal;margin-left:4px}
+.stickybar .btn{margin-left:auto;font-size:20px;padding:12px 40px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .pack-grid{grid-template-columns:repeat(2,1fr)}
+  .rev-grid.cols-4{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:768px){
+  .topbar{gap:10px;padding:6px 8px}
+  .topbar .msg b{font-size:13px}.topbar .msg span{font-size:11px}
+  .timer li strong{font-size:12px;min-width:26px;padding:4px 3px}
+  .timer li{font-size:10px}
+  .header{padding:18px 0 10px}
+  .header .container{justify-content:center}
+  .header .btn{display:none}
+  .logo{width:150px}
+  .hero{padding-top:0}
+  .hero .container{padding:0 6px}
+  .hero-grid{grid-template-columns:minmax(0,1fr);gap:0}
+  .tp-head{gap:6px;flex-wrap:wrap}.tp-head .date{font-size:11px}.tp-head .tp-logo{width:58px}.tp-head .tp-stars{width:62px}
+  .tp-foot{gap:12px;font-size:11px}.tp-foot img{width:70px}
+  .hero-info{padding:0 6px}
+  .tp-card{border-radius:0 0 12px 12px;border-top:0}
+  .hero h1{font-size:24px}
+  .price{font-size:26px}
+  .save-badge{margin-right:0}
+  .bullets li{font-size:16px}
+  .expert p{font-size:13.5px}
+  .sec{padding:30px 0}
+  .sec-grid,.sec-grid.reverse{grid-template-columns:minmax(0,1fr);gap:22px}
+  .sec-grid .sec-img{order:-1}
+  .sec h2,.sec h3{font-size:24px;margin-bottom:18px}
+  .sec p{font-size:16px}
+  .rev-grid.cols-3{grid-template-columns:1fr}
+  .rev-grid.cols-3 .rev:nth-child(n+2){display:none}
+  .rev-grid.cols-3.expanded .rev{display:flex}
+  .reviews-head h3{font-size:22px}.reviews-head h4{font-size:19px}
+  .rev-grid.cols-4{gap:10px;padding:0 10px}
+  .rev-grid.cols-4 .rev p{font-size:12.5px}
+  .rev-grid.cols-4 .rev-meta{flex-wrap:wrap}
+  .rev-grid.cols-4 .rev-meta .vt{margin-left:0;width:96px}
+  .trust-row{grid-template-columns:1fr;gap:14px}
+  .trust-item{justify-content:flex-start;padding-left:20px}
+  .trust-item img{width:86px}.trust-item span{font-size:18px}
+  .faq-grid{grid-template-columns:1fr}
+  .packs h2{font-size:27px}
+  .pack-grid{grid-template-columns:1fr;max-width:420px}
+  .pack.popular{order:-1;transform:none}
+  .pack-perks{gap:14px;font-size:13px}
+  .support h3{font-size:26px}
+  .stickybar img{width:46px;height:46px}
+  .stickybar h5{font-size:15px}.stickybar .p{font-size:13px}
+  .stickybar .btn{font-size:14px;padding:11px 16px;white-space:nowrap}
+  .stickybar .p em{display:inline-block}
+  .pack-img{max-width:230px;margin:0 auto 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== 1. TOPBAR ===================== -->
+<div class="topbar">
+  <div class="msg"><b>👀 Exklusives Angebot auf Facebook!! 👏🏻</b><span>Nur auf dieser Seite verfügbar. Letzte Chance!</span></div>
+  <ul class="timer">
+    <li><strong id="t-h">01</strong>Stunden</li>
+    <li><strong id="t-m">45</strong>Minuten</li>
+    <li><strong id="t-s">15</strong>Sekunden</li>
+  </ul>
+</div>
+
+<!-- ===================== 2. HEADER ===================== -->
+<header class="header">
+  <div class="container">
+    <img class="logo" src="images/logo.png" alt="{{PRODUCT}}" style="width:170px">
+    <a href="#pakete" class="btn btn-sm">JETZT BESTELLEN</a>
+  </div>
+</header>
+
+<!-- ===================== 3. HERO – left: animated main image · right: review card, H1, price, bullets, expert, CTA ===================== -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-img"><img src="images/hauptbild.webp" alt="{{PRODUCT_FULL}} – {{HERO_IMAGE_ALT}}"></div>
+
+    <div class="hero-info">
+      <div class="tp-card">
+        <div class="tp-head">
+          <img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt="CH">
+          <span class="name">{{HERO_REVIEW_NAME}}</span>
+          <span class="date" id="hero-date">22. Oktober 2026</span>
+          <img class="tp-logo" src="https://img.funnelish.com/61025/632236/1759914425-1732100905-Trustpilot_Logo_%282022%29.webp" alt="Trustpilot">
+          <img class="tp-stars" src="https://img.funnelish.com/61025/632236/1759914439-1732104517-WrinKolex%20%283%29.webp" alt="5 Sterne">
+        </div>
+        <p>{{HERO_REVIEW_TEXT}}</p>
+        <div class="tp-foot">
+          <img src="https://img.funnelish.com/61025/632236/1759914439-1732104517-WrinKolex%20%283%29.webp" alt="">
+          <span>Ausgezeichnet: <b>4,7</b></span>
+          <span><b>13.428</b> Bewertungen</span>
+        </div>
+      </div>
+
+      <h1>{{HERO_H1}}</h1>
+
+      <div class="price-row">
+        <span class="price">CHF 35.–</span>
+        <span class="price-old">CHF 70</span>
+        <span class="save-badge">Sie sparen CHF 35.–</span>
+      </div>
+
+      <ul class="bullets">
+        <li><img src="https://img.funnelish.com/82804/0/1778730920-1755018552-1751118214-1744009811-1742304719-Respira%20%281%29.webp" alt="">{{HERO_BULLET_1}}</li>
+        <li><img src="https://img.funnelish.com/82804/0/1778730920-1755018552-1751118214-1744009811-1742304719-Respira%20%281%29.webp" alt="">{{HERO_BULLET_2}}</li>
+        <li><img src="https://img.funnelish.com/82804/0/1778730920-1755018552-1751118214-1744009811-1742304719-Respira%20%281%29.webp" alt="">{{HERO_BULLET_3}}</li>
+        <li><img src="https://img.funnelish.com/82804/0/1778730920-1755018552-1751118214-1744009811-1742304719-Respira%20%281%29.webp" alt="">{{HERO_BULLET_4}}</li>
+        <li><img src="https://img.funnelish.com/82804/0/1778730920-1755018552-1751118214-1744009811-1742304719-Respira%20%281%29.webp" alt="">{{HERO_BULLET_5}}</li>
+      </ul>
+
+      <div class="expert">
+        <div>
+          <h4>Worte des Experten:</h4>
+          <p>{{EXPERT_QUOTE}}</p>
+          <small>– {{EXPERT_NAME}} – {{EXPERT_TITLE}}</small>
+        </div>
+        <img src="images/experte-avatar.jpg" alt="{{EXPERT_NAME}}">
+      </div>
+
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg btn-pulse">JETZT BESTELLEN ➞</a>
+        <p class="guarantee">100 % Zufriedenheit oder Geld zurück</p>
+        <img class="payments" src="https://img.funnelish.com/82804/0/1780042838-TWINT.webp" alt="Klarna, Google Pay, Mastercard, Visa, TWINT">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4. BEKANNT AUS – endless logo marquee: ONE logo set here, the script duplicates it, CSS @keyframes marquee scrolls it; label stays centred ===================== -->
+<div class="press">
+  <div class="press-label"><img src="https://img.funnelish.com/96067/0/1778221717-5%20star%20for%20ella%20%288%29.png" alt="">Bekannt aus…</div>
+  <div class="press-track" id="press-track">
+    <img src="https://img.funnelish.com/52417/400024/1722396406-1.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396408-2.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396410-3.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396412-4.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396415-5.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396417-6.png" alt=""><img src="https://img.funnelish.com/52417/400024/1722396419-7.png" alt="">
+  </div>
+</div>
+
+<!-- ===================== 5. SEKTION 1 – Vorher-Nachher (Bild rechts) ===================== -->
+<section class="sec beige">
+  <div class="sec-grid">
+    <div class="sec-text">
+      <h3>{{S1_TITLE}}</h3>
+      <p>{{S1_P1}}</p>
+      <p>{{S1_P2}}</p>
+      <p>{{S1_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/vorher-nachher.jpg" alt="Vorher – Nachher" loading="lazy"></div>
+  </div>
+</section>
+<!-- ===================== 6. SEKTION 2 – Mechanik (Bild links) ===================== -->
+<section class="sec">
+  <div class="sec-grid reverse">
+    <div class="sec-text">
+      <h3>{{S2_TITLE}}</h3>
+      <p>{{S2_P1}}</p>
+      <p>{{S2_P2}}</p>
+      <p>{{S2_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/mechanik.jpg" alt="So funktioniert {{PRODUCT}}" loading="lazy"></div>
+  </div>
+</section>
+<!-- ===================== 7. SEKTION 3 – Schritt für Schritt (Bild rechts) ===================== -->
+<section class="sec beige">
+  <div class="sec-grid">
+    <div class="sec-text">
+      <h3>{{S3_TITLE}}</h3>
+      <p>{{S3_P1}}</p>
+      <p>{{S3_P2}}</p>
+      <p>{{S3_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/schritte.jpg" alt="In 3 Schritten" loading="lazy"></div>
+  </div>
+</section>
+<!-- ===================== 8. SEKTION 4 – Experte (Bild links) ===================== -->
+<section class="sec">
+  <div class="sec-grid reverse">
+    <div class="sec-text">
+      <h3>{{S4_TITLE}}</h3>
+      <p>{{S4_P1}}</p>
+      <p>{{S4_P2}}</p>
+      <p>{{S4_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/experte.jpg" alt="Experte" loading="lazy"></div>
+  </div>
+</section>
+<!-- ===================== 8b. TESTIMONIAL-SEKTION (Bild rechts) ===================== -->
+<section class="sec beige">
+  <div class="sec-grid">
+    <div class="sec-text">
+      <h3>{{S5_TITLE}}</h3>
+      <p>{{S5_P1}}</p>
+      <p>{{S5_P2}}</p>
+      <p>{{S5_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/testimonial.jpg" alt="Zufriedene Kunden" loading="lazy"></div>
+  </div>
+</section>
+
+<!-- ===================== 9. BEWERTUNGEN (3 Karten) ===================== -->
+<div class="reviews-head">
+  <div class="stars">★★★★★</div>
+  <h3>Über 60’000 verifizierte Kunden</h3>
+  <h4>Werden Sie noch heute Teil von tausenden Erfolgsgeschichten!</h4>
+</div>
+<div class="rev-grid cols-3" id="top-reviews">
+  <div class="rev">
+    <img src="images/review-01.jpg" alt="{{REVIEW_1_NAME}}" loading="lazy">
+    <div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_1_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div>
+    <p>{{REVIEW_1_TEXT}}</p>
+  </div>
+  <div class="rev">
+    <img src="images/review-02.jpg" alt="{{REVIEW_2_NAME}}" loading="lazy">
+    <div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_2_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div>
+    <p>{{REVIEW_2_TEXT}}</p>
+  </div>
+  <div class="rev">
+    <img src="images/review-03.jpg" alt="{{REVIEW_3_NAME}}" loading="lazy">
+    <div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_3_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div>
+    <p>{{REVIEW_3_TEXT}}</p>
+  </div>
+</div>
+<button class="more-btn" id="more-btn">MEHR ANSEHEN</button>
+
+<!-- ===================== 10. SEKTION 5 – Abschluss / Garantie (Bild rechts) ===================== -->
+<section class="sec beige" style="margin-top:40px">
+  <div class="sec-grid">
+    <div class="sec-text">
+      <h3>{{CLOSING_TITLE}}</h3>
+      <p>{{CLOSING_P1}}</p>
+      <p>{{CLOSING_P2}}</p>
+      <p>{{CLOSING_P3}}</p>
+      <div class="cta-wrap">
+        <a href="#pakete" class="btn btn-lg">JETZT BESTELLEN ➞</a>
+        <p class="urgency">50 % Rabatt endet um 23:59 Uhr (Nur noch <b class="stock">7</b> Stück auf Lager)</p>
+      </div>
+    </div>
+    <div class="sec-img"><img src="images/abschluss.jpg" alt="{{PRODUCT}} – 30 Tage ohne Risiko" loading="lazy"></div>
+  </div>
+</section>
+
+<!-- ===================== 11. TRUST BADGES ===================== -->
+<div class="trust">
+  <h4>Über 60’000 zufriedene Kunden</h4>
+  <div class="trust-row">
+    <div class="trust-item"><img src="https://img.funnelish.com/52417/659077/1739526042-30%20Day%20German.png" alt=""><span>Geld-zurück-<br>Garantie</span></div>
+    <div class="trust-item"><img src="https://img.funnelish.com/9798/172450/1701144772-Icon%202.png" alt=""><span>Kostenloser<br>Versand<br>garantiert</span></div>
+    <div class="trust-item"><img src="https://img.funnelish.com/9798/172450/1701144769-Icon%203.png" alt=""><span>Hohe Qualität<br>garantiert</span></div>
+  </div>
+</div>
+
+<!-- ===================== 12. FAQ ===================== -->
+<section class="faq">
+  <h4>HÄUFIG GESTELLTE FRAGEN</h4>
+  <div class="faq-grid">
+    <div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_1_Q}}</button><div class="faq-a"><p>{{FAQ_1_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_2_Q}}</button><div class="faq-a"><p>{{FAQ_2_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_3_Q}}</button><div class="faq-a"><p>{{FAQ_3_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_4_Q}}</button><div class="faq-a"><p>{{FAQ_4_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_5_Q}}</button><div class="faq-a"><p>{{FAQ_5_A}}</p></div></div>
+    </div>
+    <div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_6_Q}}</button><div class="faq-a"><p>{{FAQ_6_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_7_Q}}</button><div class="faq-a"><p>{{FAQ_7_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_8_Q}}</button><div class="faq-a"><p>{{FAQ_8_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_9_Q}}</button><div class="faq-a"><p>{{FAQ_9_A}}</p></div></div>
+      <div class="faq-item"><button class="faq-q">{{FAQ_10_Q}}</button><div class="faq-a"><p>{{FAQ_10_A}}</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 13. PAKETE – id="pakete" is the target of every CTA; images = product only (no box) ===================== -->
+<section class="packs" id="pakete">
+  <h2>Wählen Sie Ihr {{PRODUCT}} Paket</h2>
+  <p class="sub">Je grösser das Paket, desto mehr sparen Sie pro Stück.</p>
+  <div class="pack-grid">
+    <div class="pack">
+      <div class="pack-tag">Bester Preis</div>
+      <div class="pack-body">
+        <div class="pack-img"><img src="images/paket-5x.jpg" alt="5x {{PRODUCT_FULL}}" loading="lazy"></div>
+        <h3>5x {{PRODUCT}}</h3>
+        <div class="stars">★★★★★<span>4,8</span></div>
+        <div class="per">CHF 19 <small>/ Stück</small></div>
+        <div class="total">Gesamt CHF 95 <s>CHF 350</s></div>
+        <span class="saving">Sie sparen CHF 255</span>
+        <a class="pack-btn" data-qty="5" href="#">5er-Paket wählen</a>
+      </div>
+    </div>
+    <div class="pack popular">
+      <div class="pack-tag">Beliebteste Wahl</div>
+      <div class="pack-body">
+        <div class="pack-img"><img src="images/paket-3x.jpg" alt="3x {{PRODUCT_FULL}}" loading="lazy"></div>
+        <h3>3x {{PRODUCT}}</h3>
+        <div class="stars">★★★★★<span>4,8</span></div>
+        <div class="per">CHF 22 <small>/ Stück</small></div>
+        <div class="total">Gesamt CHF 65 <s>CHF 210</s></div>
+        <span class="saving">Sie sparen CHF 145</span>
+        <a class="pack-btn" data-qty="3" href="#">3er-Paket wählen</a>
+      </div>
+    </div>
+    <div class="pack">
+      <div class="pack-tag">Vorteilspaket</div>
+      <div class="pack-body">
+        <div class="pack-img"><img src="images/paket-2x.jpg" alt="2x {{PRODUCT_FULL}}" loading="lazy"></div>
+        <h3>2x {{PRODUCT}}</h3>
+        <div class="stars">★★★★★<span>4,8</span></div>
+        <div class="per">CHF 25 <small>/ Stück</small></div>
+        <div class="total">Gesamt CHF 50 <s>CHF 140</s></div>
+        <span class="saving">Sie sparen CHF 90</span>
+        <a class="pack-btn" data-qty="2" href="#">2er-Paket wählen</a>
+      </div>
+    </div>
+    <div class="pack">
+      <div class="pack-tag">Einzelpackung</div>
+      <div class="pack-body">
+        <div class="pack-img"><img src="images/paket-1x.jpg" alt="1x {{PRODUCT_FULL}}" loading="lazy"></div>
+        <h3>1x {{PRODUCT}}</h3>
+        <div class="stars">★★★★★<span>4,8</span></div>
+        <div class="per">CHF 35 <small>/ Stück</small></div>
+        <div class="total">Gesamt CHF 35 <s>CHF 70</s></div>
+        <span class="saving">Sie sparen CHF 35</span>
+        <a class="pack-btn" data-qty="1" href="#">Einzelpackung wählen</a>
+      </div>
+    </div>
+  </div>
+  <div class="pack-perks"><span>Kostenloser Versand</span><span>30 Tage Geld-zurück-Garantie</span><span>Sichere Zahlung</span></div>
+  <label class="insurance">
+    <input type="checkbox" id="insurance" checked>
+    <img src="https://img.funnelish.com/96313/0/1768797858-images.png" alt="">
+    <div><b>Versandversicherung – <em>CHF 5</em></b><p>Falls Ihre Bestellung verloren geht, beschädigt oder gestohlen wird, ersetzen wir sie umgehend oder erstatten Ihnen den vollen Betrag.</p></div>
+  </label>
+</section>
+
+<!-- ===================== 14. BEWERTUNGEN (Raster 8) ===================== -->
+<div class="reviews-head" id="bewertungen">
+  <div class="stars">★★★★★</div>
+  <h3>Über 60’000 verifizierte Kunden</h3>
+  <h4>Werden Sie noch heute Teil von tausenden Erfolgsgeschichten!</h4>
+</div>
+<div class="rev-grid cols-4">
+  <div class="rev"><img src="images/review-04.jpg" alt="{{REVIEW_4_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_4_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_4_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-05.jpg" alt="{{REVIEW_5_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_5_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_5_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-06.jpg" alt="{{REVIEW_6_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_6_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_6_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-07.jpg" alt="{{REVIEW_7_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_7_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_7_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-08.jpg" alt="{{REVIEW_8_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_8_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_8_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-09.jpg" alt="{{REVIEW_9_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_9_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_9_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-10.jpg" alt="{{REVIEW_10_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_10_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_10_TEXT}}</p></div>
+  <div class="rev"><img src="images/review-11.jpg" alt="{{REVIEW_11_NAME}}" loading="lazy"><div class="rev-meta"><img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Civil_Ensign_of_Switzerland_%28Pantone%29.svg/330px-Civil_Ensign_of_Switzerland_%28Pantone%29.svg.png" alt=""><span class="who">{{REVIEW_11_NAME}}</span><span class="verified">Verifizierter<br>Käufer</span><img class="vt" src="https://img.funnelish.com/82804/0/1791913431-Screenshot_221-removebg-preview.png" alt=""></div><p>{{REVIEW_11_TEXT}}</p></div>
+</div>
+<div class="cta-wrap" style="margin-top:26px"><a href="#pakete" class="btn btn-lg btn-pulse" style="max-width:540px">SICHERN SIE SICH IHREN 50 % - RABATT</a></div>
+
+<!-- ===================== 15. KUNDENDIENST ===================== -->
+<section class="support">
+  <h3>Kundendienst-Experten</h3>
+  <p>Nicht 100 % zufrieden mit Ihrer Bestellung? Wir werden alles tun, um das Problem zu lösen. Nutzen Sie die 30-Tage-Geld-zurück-Garantie* und testen Sie risikofrei.</p>
+  <img src="https://img.funnelish.com/15477/188216/1704871407-Customer%20Service%20-%20Funnelish.png" alt="">
+  <p>Unser Kundenservice ist von Montag bis Sonntag von 09:00 bis 22:00 Uhr erreichbar.<br>Durchschnittliche Antwortzeit: 24 Stunden</p>
+  <p>Senden Sie uns eine E-Mail:<br><a href="mailto:support@vital-konzept.ch">support@vital-konzept.ch</a></p>
+</section>
+
+<!-- ===================== 16. FOOTER ===================== -->
+<footer class="footer">
+  © vital-konzept.ch
+  <a href="https://vital-konzept.ch/pages/terms-of-service">Allgemeine Geschäftsbedingungen</a> |
+  <a href="https://vital-konzept.ch/pages/privacy-policy">Datenschutzrichtlinie</a> |
+  <a href="https://vital-konzept.ch/pages/refund-policy">Rückgaberichtlinie</a> |
+  <a href="https://vital-konzept.ch/pages/disclaimer">*Haftungsausschluss</a>
+  <p class="disclaimer">{{DISCLAIMER}}</p>
+</footer>
+
+<!-- ===================== 17. STICKY BESTELL-LEISTE ===================== -->
+<div class="stickybar" id="stickybar">
+  <div class="container">
+    <img src="images/sticky.png" alt="{{PRODUCT}}">
+    <div><h5>{{PRODUCT}}</h5><div class="p">CHF 35.– <em>50 % RABATT</em></div></div>
+    <a href="#pakete" class="btn">JETZT BESTELLEN ➞</a>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   KONFIGURATION – hier die Shopify-Varianten-IDs DIESES Produkts eintragen
+   (leer = Paket-Buttons zeigen einen Hinweis statt in den Warenkorb zu gehen)
+   ============================================================ */
+const CONFIG = {
+  shop: 'https://vital-konzept.ch',
+  variants: { 1:'', 2:'', 3:'', 5:'' },   // TODO: Varianten-IDs dieses Produkts eintragen
+  insuranceVariant: '',          // Varianten-ID der Versandversicherung (CHF 5) – leer = wird nicht hinzugefügt
+  countdownMinutes: 105,         // Startwert Countdown (1 Std 45 Min)
+  stock: 7
+};
+
+/* ---- Paket-Links (Shopify Cart-Permalink, inkl. optionaler Versandversicherung) ---- */
+function cartUrl(qty){
+  let items = CONFIG.variants[qty] + ':1';
+  if (CONFIG.insuranceVariant && document.getElementById('insurance').checked) items += ',' + CONFIG.insuranceVariant + ':1';
+  return CONFIG.shop + '/cart/' + items + '?return_to=/checkout';
+}
+document.querySelectorAll('.pack-btn').forEach(a=>{
+  const set=()=>{ if(CONFIG.variants[a.dataset.qty]) a.href=cartUrl(a.dataset.qty); else a.href='#pakete'; }; set();
+  a.addEventListener('click',e=>{ if(!CONFIG.variants[a.dataset.qty]){ e.preventDefault(); alert('Hinweis für den Shop-Betreiber: Für dieses Paket ist noch keine Shopify-Varianten-ID hinterlegt (CONFIG.variants im Skript).'); } });
+  document.getElementById('insurance').addEventListener('change',set);
+});
+
+/* ---- Evergreen-Countdown (bleibt beim Neuladen bestehen) ---- */
+(function(){
+  const KEY='{{PRODUCT_KEY}}_deadline'; let end=+localStorage.getItem(KEY);
+  if(!end||end<Date.now()){ end=Date.now()+CONFIG.countdownMinutes*60000; localStorage.setItem(KEY,end); }
+  const h=document.getElementById('t-h'),m=document.getElementById('t-m'),s=document.getElementById('t-s');
+  const pad=n=>String(n).padStart(2,'0');
+  (function tick(){
+    let d=Math.max(0,end-Date.now());
+    if(d===0){ end=Date.now()+CONFIG.countdownMinutes*60000; localStorage.setItem(KEY,end); d=end-Date.now(); }
+    h.textContent=pad(Math.floor(d/3600000)); m.textContent=pad(Math.floor(d/60000)%60); s.textContent=pad(Math.floor(d/1000)%60);
+    setTimeout(tick,1000);
+  })();
+})();
+
+/* ---- Datum der Hero-Bewertung: immer vor 5 Tagen ---- */
+(function(){
+  const d=new Date(Date.now()-5*864e5);
+  document.getElementById('hero-date').textContent=d.toLocaleDateString('de-CH',{day:'numeric',month:'long',year:'numeric'});
+})();
+document.querySelectorAll('.stock').forEach(el=>el.textContent=CONFIG.stock);
+
+/* ---- Bekannt-aus-Laufband (Logos verdoppeln für Endlosschleife) ---- */
+const track=document.getElementById('press-track'); track.innerHTML+=track.innerHTML;
+
+/* ---- FAQ-Akkordeon ---- */
+document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>{
+  const item=q.parentElement, a=item.querySelector('.faq-a'), open=item.classList.toggle('open');
+  a.style.maxHeight=open?a.scrollHeight+'px':0;
+}));
+
+/* ---- „Mehr ansehen": Mobile klappt Karten auf, sonst Sprung zu allen Bewertungen ---- */
+document.getElementById('more-btn').addEventListener('click',()=>{
+  const g=document.getElementById('top-reviews');
+  if(window.innerWidth<=768 && !g.classList.contains('expanded')){ g.classList.add('expanded'); }
+  else document.getElementById('bewertungen').scrollIntoView({behavior:'smooth'});
+});
+
+/* ---- Sticky-Leiste nach dem Hero einblenden ---- */
+const bar=document.getElementById('stickybar'), hero=document.querySelector('.hero');
+addEventListener('scroll',()=>bar.classList.toggle('show',scrollY>hero.offsetTop+hero.offsetHeight-200),{passive:true});
+</script>
+</body>
+</html>
