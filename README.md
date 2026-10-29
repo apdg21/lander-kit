@@ -1,6 +1,6 @@
 # Landing Kit Generator
 
-Paste a competitor product page link and get everything you need to build a new landing page in **your** template (vital-konzept.ch structure):
+Paste a competitor product page link and get everything you need to build a new landing page in one of the **layouts** (page structures). Layouts are brand-neutral: any brand can use any layout – logo, colours, domain, e-mail, prices and language come from your settings.
 
 | Output tab | What it is |
 |---|---|
@@ -26,7 +26,7 @@ Every tab has **Copy**, **Download .md** and **Download all**.
 4. Open **Competitor images** and spend 30 seconds on the dropdowns. Mark the competitor's Main, Before & after, Mechanics, Steps, Doctor, Testimonial and Product images. Many pages use meaningless file names (`me03.webp`), so the auto-guess is only a hint.
 5. Open **⭐ Master prompt** → **Copy** → paste it into a new chat. The AI returns brief questions, the full copy, final image prompts and your checklist actions.
 
-Your store settings (template URL, domain, email, language, prices, stock, old product names to search for) are saved in your browser. Set them once under **Store & template settings**.
+Your store settings (template URL, domain, email, language, prices, stock, old product names to search for) are saved in your browser. Set them once under **Layout, brand & store settings**.
 
 ### Works with any competitor page
 - Advertorials and Funnelish/ClickFunnels pages (no headings needed: it reads the text around each image)
@@ -53,9 +53,29 @@ Then click Analyze again. Manual mode works without any URL.
 5. **Build page** → the report shows missing slots (they appear as `{{…}}`) and images that are still local → preview below → **Download index.html** / **Copy HTML** (for Funnelish custom HTML).
 The master prompt itself is unchanged – any AI can still build the full page on its own.
 
-## Page order (template since Oct 2026)
+## Layouts (brand-neutral)
+Choose the layout under **Layout, brand & store settings** (or at the top of the Page builder). Every tab follows it: master prompt, copy template, image prompts, checklist, sample page, image script and the builder.
+
+| Layout | Structure | Files |
+|---|---|---|
+| **Classic** | hero with animated main image · press strip · S1 GIF · S2 before/after · S3 product/material · S4 expert · 3 reviews · closing with steps · FAQ · 4 packages + shipping insurance · review grid · sticky bar. Fixed texts German. | `public/template.html`, `public/build_images.py` |
+| **Advertorial** | top bar countdown · hero gallery + rating + 5 checks · S1 problem image · S2 customer story (✗/✓ image) · S3 expert + checks · comparison table + S4 · 3 review cards · closing image · FAQ · 4 packages 5x/3x/2x/1x · guarantee · contact box. **Every text is a slot → any language.** The product badge, ✗/✓ marks and stars are added by the page (no text in images). | `public/layouts/advertorial.html`, `public/layouts/advertorial_images.py` |
+
+**Brand settings** (apply to every layout): brand / company name (footer ©), phone and address (optional, footer), 4 colours (buttons, button hover, highlight, package buttons – empty = layout default), store domain, support e-mail, language, currency, prices, stock.
+
+**Advertorial specifics**
+- Labels (buttons, badges, "Total: only" …) have English defaults. The master prompt asks the AI to write them in the page language; the builder report warns when a default was used on a non-English page.
+- Optional: `PRESS_NAMES` (only real media – empty = block disappears), `COMPARE_TITLE`, `COMPARE_5`, `FAQ_6`, images `logo.png` (empty = product name as text logo), `hero-2.jpg`, `vergleich-andere.png` (empty = 🤷 icon).
+- Image script: cut-out of the product from any flat background (white, black, colour) or a transparent PNG → `produkt.png`, `hero-2.jpg`, bundles 1x/2x/3x/5x in the brand colour, resized scenes, optional text logo.
+
+**Adding a new layout**
+1. Rebuild the page as clean HTML with `{{TOKENS}}` (rules: see the comment at the top of `layouts/advertorial.html` – optional blocks `<!--IF:KEY-->`, optional images `<!--IF:IMG:file--> … <!--ELSE--> …`, comma lists, colours only via CSS variables).
+2. Save it in `public/layouts/`, embed it in `index.html` as `const TPL_… = "…"` (JSON string, `</` → `<\/`).
+3. Add an entry to `LAYOUTS` (slots with guide + default, images, colour variables, order) – the master prompt, copy template, image prompts, checklist and builder are generated from it.
+
+## Page order – Classic layout (since Oct 2026)
 Hero (animated main image) → "Bekannt aus" press strip → **S1 animated GIF** (problem → product in action → relief) → **S2 before & after** → **S3 product / how it works** (becomes **Material** when the competitor names materials/ingredients) → **S4 expert** → 3 reviews → **Closing «Bestellen Sie heute und …» with the step-by-step image** (3 steps + guarantee + 3-pack CTA) → trust badges → FAQ → packages → review grid.
-No separate testimonial or steps section any more. Old saved settings (5-section order) are reset to this order automatically. You can still change the order under *Store & template settings → Section → image order*.
+No separate testimonial or steps section any more. Old saved settings (5-section order) are reset to this order automatically. You can still change the order under *Layout, brand & store settings → Section → image order* (Classic layout only).
 
 ## What the AI produces with the Master prompt
 The master prompt is self-contained: a new chat (Arena, ChatGPT, Claude, Gemini …) needs no other context.
@@ -114,6 +134,8 @@ PORT=8080 node server.js  # other port
 public/index.html            whole app (UI + parsing + output builders), works standalone
 public/template.html         sample page (reference template with {{TOKENS}}) – also embedded in index.html
 public/build_images.py       reference image script – also embedded in index.html
+public/layouts/advertorial.html        Advertorial layout (sample page with {{TOKENS}}) – embedded in index.html
+public/layouts/advertorial_images.py   image script of the Advertorial layout – embedded in index.html
 lib/fetchCore.js             shared page fetcher (Chrome UA, SSRF guard, 4 MB cap, reader fallback, Shopify JSON)
 server.js                    local / VPS server (static + /api/fetch)
 api/fetch.js                 Vercel serverless function

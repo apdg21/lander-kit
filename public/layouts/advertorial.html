@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<!--
+=====================================================================================
+ REFERENCE TEMPLATE – LAYOUT "ADVERTORIAL" (brand-neutral)
+ Structure: topbar countdown · logo · hero (image gallery + rating + H1 + price + 5 checks + CTA
+ + press names + payment badges + 3 benefits) · S1 problem image · S2 customer story (✗ / ✓ image)
+ · S3 expert + 4 checks · comparison table + S4 text · 3 review cards · closing image · FAQ
+ · 4 packages (5x / 3x / 2x / 1x) · guarantee · contact footer.
+ RULES
+ - Replace every {{TOKEN}}. **text** in the copy = bold (in headings: highlight colour).
+ - <!--IF:KEY--> … <!--/IF:KEY-->  = optional block, delete it when KEY is empty.
+ - <!--IF:IMG:file--> … <!--ELSE--> … <!--/IF:IMG:file--> = optional image (hero-2.jpg, logo.png,
+   vergleich-andere.png): keep the first part when the image exists, else the ELSE part.
+ - PRESS_NAMES / PAYMENT_METHODS are comma lists → one <span> per item.
+ - {stock} in STOCK_TEXT → <b>stock number</b>; {n} in VIEWERS_TEXT → <b data-viewers>11</b>.
+ - Colours: only the CSS variables in :root (--btn, --btn-dark, --hi, --buy).
+ - Images (all in images/): logo.png · hero-1.jpg · hero-2.jpg · s1.jpg · s2.jpg · s3.jpg ·
+   abschluss.jpg · produkt.png (transparent – shown as the product badge on every section image
+   and in the comparison table) · vergleich-andere.png · review-01..03.jpg · paket-5x/3x/2x/1x.jpg
+ - No text inside images: the product badge, ✗ / ✓ marks and stars are added by this page.
+=====================================================================================
+-->
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{PRODUCT_FULL}}</title>
+<meta name="description" content="{{HERO_IMAGE_ALT}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --btn:#2337c6;        /* buttons, topbar */
+  --btn-dark:#18278f;   /* button hover */
+  --hi:#2337c6;         /* highlighted words in headings, frames, check marks */
+  --buy:#3dba6a;        /* order buttons of the two best packages */
+  --price:#e3001b;
+  --text:#151515; --muted:#555b66; --line:#e3e5ee;
+  --soft:#f1f2fb;
+  --radius:16px;
+}
+@supports (background:color-mix(in srgb,red 10%,white)){ :root{ --soft:color-mix(in srgb,var(--hi) 7%,#fff); } }
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--text);background:#fff;line-height:1.5;font-size:17px}
+img{max-width:100%;display:block}
+strong{font-weight:700}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.narrow{max-width:640px}
+/* topbar + header */
+.topbar{position:sticky;top:0;z-index:50;background:var(--btn);color:#fff;text-align:center;font-weight:700;font-size:15px;padding:8px 10px;letter-spacing:.2px}
+.topbar .cd{display:inline-block;margin-left:6px;background:#fff;color:var(--btn);border-radius:6px;padding:0 7px;font-variant-numeric:tabular-nums}
+.hdr{display:flex;justify-content:center;padding:12px 0 8px}
+.hdr .logo{height:46px;width:auto}
+.logo-txt{font-size:30px;font-weight:800;color:var(--hi);letter-spacing:-.5px}
+/* hero */
+.hero{display:grid;grid-template-columns:1fr;gap:22px;padding-bottom:26px}
+@media(min-width:900px){.hero{grid-template-columns:1fr 1fr;align-items:start;gap:44px;padding-top:12px}}
+.g-main{position:relative;border-radius:12px;overflow:hidden;background:#f3f3f3;aspect-ratio:1/1}
+.g-main img{width:100%;height:100%;object-fit:cover}
+.g-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.85);font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.g-prev{left:8px}.g-next{right:8px}
+.g-thumbs{display:flex;gap:8px;margin-top:8px}
+.g-thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid transparent;cursor:pointer;opacity:.75}
+.g-thumbs img.on{border-color:var(--hi);opacity:1}
+.rating{display:flex;align-items:center;gap:8px;font-size:15px;color:#333;margin-bottom:8px;flex-wrap:wrap}
+.tp{display:inline-flex;gap:2px}
+.tp i{width:18px;height:18px;background:#00b67a;color:#fff;font-style:normal;font-size:13px;display:grid;place-items:center}
+h1{font-size:30px;line-height:1.15;font-weight:800;letter-spacing:-.3px}
+h1 strong,h2 strong,h3 strong{color:var(--hi)}
+@media(min-width:900px){h1{font-size:38px}}
+.prices{display:flex;align-items:center;gap:12px;margin:18px 0 14px;flex-wrap:wrap}
+.prices s{color:#555;font-size:22px;font-weight:600}
+.prices .now{color:var(--price);font-size:30px;font-weight:800}
+.prices .save{color:var(--price);font-weight:800;font-style:italic;text-decoration:underline;font-size:22px}
+.checks{list-style:none;margin:6px 0 18px}
+.checks li{position:relative;padding-left:28px;margin:6px 0;font-size:17px}
+.checks li::before{content:"✔";position:absolute;left:2px;top:0;color:var(--hi);font-weight:800}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:0 auto;background:var(--btn);color:#fff;text-decoration:none;font-weight:800;font-size:22px;letter-spacing:.5px;padding:15px 22px;border-radius:40px;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:.15s;text-transform:uppercase}
+.btn:hover{background:var(--btn-dark);transform:translateY(-1px)}
+.press{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:22px 0 6px;color:#888}
+.press>span{font-weight:700;color:#222;font-size:15px}
+.press-names{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.press-names span{font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#9a9a9a;letter-spacing:-.3px;filter:grayscale(1)}
+.pay{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pay span{border:1px solid #d8d8d8;border-radius:6px;padding:3px 9px;font-size:13px;font-weight:700;color:#333;background:#fff}
+.benefits{border:1px solid #cfd2dc;border-radius:12px;background:var(--soft);padding:12px 16px;display:grid;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.benefits div{display:flex;align-items:center;gap:12px;font-weight:700;font-size:16px}
+.benefits i{font-style:normal;font-size:22px;width:28px;text-align:center}
+/* sections */
+.sec{padding:40px 0}
+.sec.soft{background:var(--soft)}
+.pimg{position:relative;border:4px solid var(--hi);border-radius:var(--radius);overflow:hidden;margin-bottom:24px;background:#eee}
+.pimg>img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.pbadge{position:absolute;left:4%;bottom:4%;width:32%;background:#fff;border-radius:10px;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.pbadge img{width:100%;aspect-ratio:1.4/1;object-fit:contain}
+.mark{position:absolute;right:5%;width:15%;aspect-ratio:1/1;display:grid;place-items:center;font-size:clamp(28px,8vw,60px);font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+.mark.x{top:4%;color:#e3001b}.mark.ok{top:54%;color:#25b04b}
+h2{font-size:28px;line-height:1.2;font-weight:800;text-align:center;margin-bottom:18px;letter-spacing:-.2px}
+.sec p{margin:0 0 14px;text-align:center}
+.sec .left p,.sec p.left{text-align:left}
+.quote{font-style:italic}
+.author{text-align:center;font-weight:700;margin:16px 0 6px}
+.author::before{content:"· ";color:var(--hi)}
+.cta{margin-top:22px;text-align:center}
+.urg{font-size:14px;color:#666;margin-top:10px !important}
+.urg b{color:var(--price)}
+.live{text-align:center;font-size:15px;color:#1f9d55;font-weight:600;margin-top:10px !important}
+.live i{display:inline-block;margin-right:8px;vertical-align:1px;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.sec .checks{max-width:520px;margin:6px auto 0}
+/* comparison */
+.cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:3px solid var(--hi);border-radius:var(--radius);overflow:hidden;margin-bottom:30px}
+.cmp th,.cmp td{padding:12px 8px;text-align:center;border-bottom:1px solid var(--line);font-size:15px}
+.cmp tr:last-child td{border-bottom:0}
+.cmp td:first-child{font-weight:700;width:44%}
+.cmp th img{height:64px;width:auto;margin:0 auto 6px;object-fit:contain}
+.cmp th span{display:block;font-size:14px;font-weight:800}
+.cmp .us{background:color-mix(in srgb,var(--hi) 10%,#fff)}
+.cmp .y,.cmp .n{font-size:22px;font-weight:900}
+.cmp .y{color:#25b04b}.cmp .n{color:#e3001b}
+.them-ico{font-size:40px;line-height:64px;display:block}
+/* reviews */
+.rv-head{text-align:center;margin-bottom:22px}
+.rv-head .tp{justify-content:center;margin:0 auto 8px}
+.rv-head .tp i{width:30px;height:30px;font-size:20px}
+.rv-head small{display:block;color:#444;margin-bottom:6px}
+.rv-head u{color:#333}
+.reviews{display:grid;gap:22px;grid-template-columns:1fr}
+@media(min-width:900px){.reviews{grid-template-columns:repeat(3,1fr)}}
+.rv{background:#fff;border-radius:var(--radius);box-shadow:0 6px 22px rgba(0,0,0,.09);overflow:hidden}
+.rv>img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.rv .b{padding:14px 18px 18px;text-align:left}
+.rv .st{color:#f5b301;letter-spacing:3px;text-align:center;margin:-2px 0 6px}
+.rv .nm{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
+.rv .nm i{width:20px;height:20px;border-radius:50%;background:var(--hi);color:#fff;font-style:normal;font-size:12px;display:grid;place-items:center}
+.rv p{text-align:left;margin:0;font-size:16px}
+/* faq */
+.faq-h{text-align:center;margin-bottom:20px}
+.faq-h h2{margin-bottom:0}
+.faq-h h2+h2{text-decoration:underline}
+details{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;padding:16px 30px 16px 4px;position:relative;font-weight:700;font-size:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"⌄";position:absolute;right:6px;top:10px;font-size:20px;transition:.2s}
+details[open] summary::after{transform:rotate(180deg)}
+details p{padding:0 4px 16px;text-align:left !important;color:#333}
+/* packages */
+.pkgs{display:grid;gap:14px}
+.pkg{display:grid;grid-template-columns:110px 1fr;gap:10px 14px;border:2px solid #333;background:#fff;position:relative;padding:40px 12px 12px}
+.pkg.top{border-color:var(--buy)}
+.pkg .tag{position:absolute;left:0;top:0;background:#555;color:#fff;font-weight:700;font-size:13px;padding:6px 12px;white-space:nowrap;letter-spacing:.3px}
+.pkg.top .tag{background:var(--buy)}
+.pkg>img{width:110px;height:110px;object-fit:cover;border-radius:8px;align-self:center}
+.pk-info{text-align:right}
+.pk-info h3{font-size:24px;font-weight:500}
+.pk-info .tot{font-size:15px;font-weight:700}
+.pk-info .tot s{color:#777;font-weight:600}
+.pk-info .per{color:var(--price);font-weight:800;font-size:22px;text-decoration:underline}
+.pk-info .g{font-style:italic;font-weight:700;font-size:15px}
+.buy{grid-column:1/-1;display:block;text-align:center;background:#444;color:#fff;text-decoration:none;font-weight:800;font-size:20px;padding:13px;border-radius:2px;letter-spacing:.5px}
+.pkg.top .buy{background:var(--buy)}
+.pkg.low .buy{background:#9a9a9a}
+.buy:hover{filter:brightness(.92)}
+@media(min-width:900px){.pkgs{grid-template-columns:repeat(2,1fr)}}
+/* guarantee + footer */
+.gbadge{width:110px;height:110px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle,#fff 52%,#1f8f3a 53%,#1f8f3a 62%,#ffd34d 63%,#ffd34d 70%,#1f8f3a 71%);display:grid;place-items:center;text-align:center;color:#1f8f3a;font-weight:900;line-height:1}
+.gbadge b{font-size:34px;display:block}.gbadge small{font-size:12px}
+.contact{border:1px solid #cfd3d8;background:#eef0f1;border-radius:20px;padding:18px;display:grid;gap:14px;text-align:center}
+.contact .row{display:flex;justify-content:center;gap:30px;flex-wrap:wrap}
+.contact a{color:var(--hi);font-weight:700;text-decoration:none}
+.contact .addr{font-size:14px;color:#333}
+.contact .disc{font-size:14px;color:#333}
+.copy{text-align:center;font-weight:700;padding:26px 0 40px;font-size:15px}
+</style>
+</head>
+<body>
+
+<div class="topbar">{{TOPBAR_TEXT}} <span class="cd" id="cd">--:--:--</span></div>
+
+<header class="hdr">
+  <!--IF:IMG:logo.png--><img class="logo" src="images/logo.png" alt="{{PRODUCT}}"><!--ELSE--><span class="logo-txt">{{PRODUCT}}</span><!--/IF:IMG:logo.png-->
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero wrap">
+  <div class="gallery">
+    <div class="g-main">
+      <img id="gMain" src="images/hero-1.jpg" alt="{{HERO_IMAGE_ALT}}">
+      <!--IF:IMG:hero-2.jpg--><button class="g-nav g-prev" aria-label="back">❮</button><button class="g-nav g-next" aria-label="next">❯</button><!--/IF:IMG:hero-2.jpg-->
+    </div>
+    <div class="g-thumbs">
+      <img class="on" src="images/hero-1.jpg" alt="">
+      <!--IF:IMG:hero-2.jpg--><img src="images/hero-2.jpg" alt="{{PRODUCT}}"><!--/IF:IMG:hero-2.jpg-->
+    </div>
+  </div>
+  <div class="info">
+    <div class="rating"><span class="tp"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span> {{RATING_TEXT}}</div>
+    <h1>{{HERO_H1}}</h1>
+    <div class="prices"><s>{{OLD_1}}</s> <b class="now">{{PRICE_1}}</b> <span class="save">{{HERO_SAVE_LABEL}} {{SAVE_1}}</span></div>
+    <ul class="checks">
+      <li>{{HERO_BULLET_1}}</li>
+      <li>{{HERO_BULLET_2}}</li>
+      <li>{{HERO_BULLET_3}}</li>
+      <li>{{HERO_BULLET_4}}</li>
+      <li>{{HERO_BULLET_5}}</li>
+    </ul>
+    <a class="btn" href="#offer">{{CTA_LABEL}}</a>
+    <!--IF:PRESS_NAMES--><div class="press"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div><!--/IF:PRESS_NAMES-->
+    <div class="pay">{{PAYMENT_METHODS}}</div>
+    <div class="benefits">
+      <div><i>🚚</i>{{BENEFIT_1}}</div>
+      <div><i>💬</i>{{BENEFIT_2}}</div>
+      <div><i>🛡️</i>{{BENEFIT_3}}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S1 – PROBLEM / PRODUCT INTRO ============ -->
+<section class="sec soft">
+  <div class="wrap narrow">
+    <div class="pimg"><img src="images/s1.jpg" alt="{{S1_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+    <h2>{{S1_TITLE}}</h2>
+    <p>{{S1_P1}}</p>
+    <p>{{S1_P2}}</p>
+    <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+    <p class="live"><i></i><span>{{VIEWERS_TEXT}}</span></p>
+  </div>
+</section>
+
+<!-- ============ S2 – CUSTOMER STORY (image: top = problem ✗, bottom = solved ✓) ============ -->
+<section class="sec">
+  <div class="wrap narrow">
+    <div class="pimg"><img src="images/s2.jpg" alt="{{S2_QUOTE_TITLE_PLAIN}}" loading="lazy"><span class="mark x">✗</span><span class="mark ok">✓</span><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+    <h2>{{S2_QUOTE_TITLE}}</h2>
+    <p class="quote">{{S2_QUOTE}}</p>
+    <p class="author">{{S2_AUTHOR}}</p>
+    <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+    <!--IF:PRESS_NAMES--><div class="press"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div><!--/IF:PRESS_NAMES-->
+  </div>
+</section>
+
+<!-- ============ S3 – EXPERT ============ -->
+<section class="sec soft">
+  <div class="wrap narrow">
+    <div class="pimg"><img src="images/s3.jpg" alt="{{S3_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+    <h2>{{S3_TITLE}}</h2>
+    <p class="left">{{S3_P1}}</p>
+    <p class="left">{{S3_P2}}</p>
+    <ul class="checks">
+      <li>{{S3_BULLET_1}}</li>
+      <li>{{S3_BULLET_2}}</li>
+      <li>{{S3_BULLET_3}}</li>
+      <li>{{S3_BULLET_4}}</li>
+    </ul>
+    <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+  </div>
+</section>
+
+<!-- ============ COMPARISON + S4 ============ -->
+<section class="sec">
+  <div class="wrap narrow">
+    <!--IF:COMPARE_TITLE--><h2>{{COMPARE_TITLE}}</h2><!--/IF:COMPARE_TITLE-->
+    <table class="cmp">
+      <thead><tr>
+        <th></th>
+        <th class="us"><img src="images/produkt.png" alt="{{PRODUCT}}"><span>{{PRODUCT}}</span></th>
+        <th><!--IF:IMG:vergleich-andere.png--><img src="images/vergleich-andere.png" alt="{{COMPARE_OTHER}}"><!--ELSE--><span class="them-ico">🤷</span><!--/IF:IMG:vergleich-andere.png--><span>{{COMPARE_OTHER}}</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><td>{{COMPARE_1}}</td><td class="us y">✔</td><td class="n">✘</td></tr>
+        <tr><td>{{COMPARE_2}}</td><td class="us y">✔</td><td class="n">✘</td></tr>
+        <tr><td>{{COMPARE_3}}</td><td class="us y">✔</td><td class="n">✘</td></tr>
+        <tr><td>{{COMPARE_4}}</td><td class="us y">✔</td><td class="n">✘</td></tr>
+        <!--IF:COMPARE_5--><tr><td>{{COMPARE_5}}</td><td class="us y">✔</td><td class="n">✘</td></tr><!--/IF:COMPARE_5-->
+      </tbody>
+    </table>
+    <h2>{{S4_TITLE}}</h2>
+    <p>{{S4_P1}}</p>
+    <p>{{S4_P2}}</p>
+    <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="rv-head">
+      <span class="tp"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span>
+      <small>{{REVIEWS_SCORE_TEXT}}</small>
+      <h2 style="margin-bottom:6px">{{REVIEWS_TITLE}}</h2>
+      <u>{{REVIEWS_SUB}}</u>
+    </div>
+    <div class="reviews">
+      <div class="rv"><img src="images/review-01.jpg" alt="{{REVIEW_1_NAME}}" loading="lazy"><div class="b"><div class="st">★★★★★</div><div class="nm"><i>✓</i>{{REVIEW_1_NAME}}</div><p>{{REVIEW_1_TEXT}}</p></div></div>
+      <div class="rv"><img src="images/review-02.jpg" alt="{{REVIEW_2_NAME}}" loading="lazy"><div class="b"><div class="st">★★★★★</div><div class="nm"><i>✓</i>{{REVIEW_2_NAME}}</div><p>{{REVIEW_2_TEXT}}</p></div></div>
+      <div class="rv"><img src="images/review-03.jpg" alt="{{REVIEW_3_NAME}}" loading="lazy"><div class="b"><div class="st">★★★★★</div><div class="nm"><i>✓</i>{{REVIEW_3_NAME}}</div><p>{{REVIEW_3_TEXT}}</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSING ============ -->
+<section class="sec soft">
+  <div class="wrap narrow">
+    <div class="pimg"><img src="images/abschluss.jpg" alt="{{CLOSING_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+    <h2>{{CLOSING_TITLE}}</h2>
+    <p class="left">{{CLOSING_P1}}</p>
+    <p class="left">{{CLOSING_P2}}</p>
+    <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}}</p></div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="sec">
+  <div class="wrap narrow">
+    <div class="faq-h"><h2>{{FAQ_TITLE}}</h2><h2>{{FAQ_SUB}}</h2></div>
+    <details><summary>{{FAQ_1_Q}}</summary><p>{{FAQ_1_A}}</p></details>
+    <details><summary>{{FAQ_2_Q}}</summary><p>{{FAQ_2_A}}</p></details>
+    <details><summary>{{FAQ_3_Q}}</summary><p>{{FAQ_3_A}}</p></details>
+    <details><summary>{{FAQ_4_Q}}</summary><p>{{FAQ_4_A}}</p></details>
+    <details><summary>{{FAQ_5_Q}}</summary><p>{{FAQ_5_A}}</p></details>
+    <!--IF:FAQ_6_Q--><details><summary>{{FAQ_6_Q}}</summary><p>{{FAQ_6_A}}</p></details><!--/IF:FAQ_6_Q-->
+  </div>
+</section>
+
+<!-- ============ PACKAGES ============ -->
+<section class="sec" id="offer" style="padding-top:10px">
+  <div class="wrap">
+    <div class="pkgs">
+      <div class="pkg top"><span class="tag">{{PKG_BADGE_5}}</span><img src="images/paket-5x.jpg" alt="5x {{PRODUCT}}" loading="lazy">
+        <div class="pk-info"><h3>5x {{PRODUCT}}</h3><div class="tot">{{PKG_TOTAL_LABEL}} {{PRICE_5}} <s>{{OLD_5}}</s></div><div class="per">{{PKG_PER_LABEL}} {{PER_5}}{{PKG_PER_UNIT}}</div><div class="g">{{PKG_GUARANTEE}}</div></div>
+        <a class="buy" href="#" data-qty="5">{{PKG_BUTTON}}</a></div>
+      <div class="pkg top"><span class="tag">{{PKG_BADGE_3}}</span><img src="images/paket-3x.jpg" alt="3x {{PRODUCT}}" loading="lazy">
+        <div class="pk-info"><h3>3x {{PRODUCT}}</h3><div class="tot">{{PKG_TOTAL_LABEL}} {{PRICE_3}} <s>{{OLD_3}}</s></div><div class="per">{{PKG_PER_LABEL}} {{PER_3}}{{PKG_PER_UNIT}}</div><div class="g">{{PKG_GUARANTEE}}</div></div>
+        <a class="buy" href="#" data-qty="3">{{PKG_BUTTON}}</a></div>
+      <div class="pkg"><span class="tag">{{PKG_BADGE_2}}</span><img src="images/paket-2x.jpg" alt="2x {{PRODUCT}}" loading="lazy">
+        <div class="pk-info"><h3>2x {{PRODUCT}}</h3><div class="tot">{{PKG_TOTAL_LABEL}} {{PRICE_2}} <s>{{OLD_2}}</s></div><div class="per">{{PKG_PER_LABEL}} {{PER_2}}{{PKG_PER_UNIT}}</div><div class="g">{{PKG_GUARANTEE}}</div></div>
+        <a class="buy" href="#" data-qty="2">{{PKG_BUTTON}}</a></div>
+      <div class="pkg low"><span class="tag">{{PKG_BADGE_1}}</span><img src="images/paket-1x.jpg" alt="1x {{PRODUCT}}" loading="lazy">
+        <div class="pk-info"><h3>1x {{PRODUCT}}</h3><div class="tot">{{PKG_TOTAL_LABEL}} {{PRICE_1}} <s>{{OLD_1}}</s></div><div class="per">{{PKG_PER_LABEL}} {{PER_1}}{{PKG_PER_UNIT}}</div><div class="g">{{PKG_GUARANTEE}}</div></div>
+        <a class="buy" href="#" data-qty="1">{{PKG_BUTTON}}</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUARANTEE ============ -->
+<section class="sec" style="padding-top:10px">
+  <div class="wrap narrow">
+    <div class="gbadge"><div><b>{{GUARANTEE_DAYS}}</b><small>{{GUARANTEE_BADGE}}</small></div></div>
+    <h2>{{GUARANTEE_TITLE}}</h2>
+    <p>{{GUARANTEE_P1}}</p>
+    <p>{{GUARANTEE_P2}}</p>
+  </div>
+</section>
+
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer class="wrap narrow">
+  <div class="contact">
+    <!--IF:ADDRESS--><div class="addr">📍 {{ADDRESS}}</div><!--/IF:ADDRESS-->
+    <div class="row">
+      <div>✉️ {{FOOTER_HELP}}<br><a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a></div>
+      <!--IF:PHONE--><div>📞 {{FOOTER_PHONE_LABEL}}<br><a href="tel:{{PHONE}}">{{PHONE}}</a></div><!--/IF:PHONE-->
+    </div>
+    <div class="disc">{{DISCLAIMER}}</div>
+  </div>
+  <div class="copy">© {{YEAR}} {{BRAND}}</div>
+</footer>
+
+<script>
+/* ---------- CONFIG (filled by the page builder – never reuse IDs of another product) ---------- */
+const CONFIG = {
+  storeDomain: '{{STORE_DOMAIN}}',
+  variants: { 1:'{{VARIANT_1}}', 2:'{{VARIANT_2}}', 3:'{{VARIANT_3}}', 5:'{{VARIANT_5}}' },
+  missingVariantMsg: 'Checkout not connected yet (variant ID missing).'
+};
+/* order buttons → Shopify cart permalink */
+document.querySelectorAll('.buy').forEach(a => {
+  const id = (CONFIG.variants[a.dataset.qty] || '').replace(/\D/g, '');
+  if (id) a.href = 'https://' + CONFIG.storeDomain + '/cart/' + id + ':1?return_to=/checkout';
+  else a.addEventListener('click', e => { e.preventDefault(); alert(CONFIG.missingVariantMsg); });
+});
+/* countdown to midnight */
+(function(){ const el = document.getElementById('cd'); if (!el) return;
+  const tick = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); let s = Math.max(0, Math.floor((m - n) / 1000));
+    const p = x => String(x).padStart(2, '0'); el.textContent = p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60); };
+  tick(); setInterval(tick, 1000); })();
+/* hero gallery */
+(function(){ const main = document.getElementById('gMain'); const th = [...document.querySelectorAll('.g-thumbs img')]; if (!main || th.length < 2) return;
+  let i = 0; const go = k => { i = (k + th.length) % th.length; main.src = th[i].src; th.forEach((t, j) => t.classList.toggle('on', j === i)); };
+  th.forEach((t, j) => t.addEventListener('click', () => go(j)));
+  const pv = document.querySelector('.g-prev'), nx = document.querySelector('.g-next');
+  if (pv) pv.addEventListener('click', () => go(i - 1)); if (nx) nx.addEventListener('click', () => go(i + 1)); })();
+/* live viewers */
+(function(){ const els = document.querySelectorAll('[data-viewers]'); if (!els.length) return;
+  let v = 9 + Math.floor(Math.random() * 8);
+  const set = () => els.forEach(e => e.textContent = v); set();
+  setInterval(() => { v = Math.max(5, Math.min(24, v + (Math.random() < .5 ? -1 : 1))); set(); }, 4000); })();
+</script>
+</body>
+</html>
