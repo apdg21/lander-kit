@@ -61,6 +61,40 @@ pre.out{white-space:pre-wrap;word-wrap:break-word;background:#fbfaf7;border:1px 
 @media(max-width:520px){.wrap{padding:10px;gap:12px}.row{grid-template-columns:minmax(0,1fr)}.wrap>*{min-width:0}input,select,textarea{min-width:0;max-width:100%}pre.out{font-size:11.5px}}
 .hint{background:#fff8e6;border:1px solid #f0d28a;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;margin:0 0 12px}.hint.ok{background:#eef8ef;border-color:#b5dcb9}
 .colf{display:flex;gap:4px;align-items:center}.colf input[type=color]{width:34px;min-width:34px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer}.colf input[type=text]{min-width:0;font-size:12px;padding:7px 6px}
+.lg-modal{position:fixed;inset:0;background:rgba(20,22,30,.62);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.lg-modal.show{display:flex}
+.lg-box{background:#fff;border-radius:14px;width:min(1320px,100%);height:100%;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.lg-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#lgTitle{flex:1;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:220px}
+#lgTitle small{color:var(--muted);font-weight:400;font-size:13px}
+#lgTools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lg-x{border:0;background:#f1efe9;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:16px}
+#lgBody{flex:1;overflow:auto;background:var(--bg)}
+.lg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:18px;padding:18px}
+.lg-card{background:#fff;border:2px solid var(--line);border-radius:12px;overflow:hidden;display:grid;grid-template-columns:230px 1fr}
+.lg-card.cur{border-color:var(--accent)}
+.lg-thumb{position:relative;width:230px;height:440px;overflow:hidden;cursor:pointer;background:#fff;border-right:1px solid var(--line)}
+.lg-thumb iframe{width:390px;height:746px;border:0;transform:scale(.5897);transform-origin:0 0;pointer-events:none;background:#fff}
+.lg-zoom{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-weight:700;text-align:center;padding:34px 0 12px;opacity:0;transition:.2s}
+.lg-thumb:hover .lg-zoom{opacity:1}
+.lg-info{padding:16px;display:flex;flex-direction:column;gap:8px}
+.lg-info h4{margin:0;font-size:18px}
+.lg-info p{margin:0;font-weight:600}
+.lg-info small{color:var(--muted);line-height:1.45}
+.lg-info .lg-ex{color:var(--ink)}
+.lg-btns{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.lg-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.lg-note{padding:0 18px 18px;color:var(--muted);font-size:13px;margin:0}
+.lg-stage{height:100%;display:flex;justify-content:center;padding:14px;box-sizing:border-box}
+.lg-stage iframe{border:0;background:#fff;height:100%;box-shadow:0 6px 30px rgba(0,0,0,.18);border-radius:10px}
+.lg-stage.mobile iframe{width:390px;max-width:100%}
+.lg-stage.desktop iframe{width:100%}
+.seg{display:inline-flex;border:1px solid #d6d1c4;border-radius:8px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:7px 12px;cursor:pointer;font:inherit;font-size:13px}
+.seg button.on{background:var(--ink);color:#fff}
+.btn.sm{padding:7px 12px;font-size:13px}
+label.lg-tg{font-size:13px;display:inline-flex;gap:6px;align-items:center;margin:0;font-weight:400}
+@media(max-width:760px){.lg-grid{grid-template-columns:1fr}.lg-card{grid-template-columns:1fr}.lg-thumb{width:100%;border-right:0;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -151,6 +185,7 @@ pre.out{white-space:pre-wrap;word-wrap:break-word;background:#fbfaf7;border:1px 
       <label>Page layout <small>(the page structure – any brand can use any layout)</small></label>
       <select id="layout"></select>
       <div class="hint" id="layoutHint"></div>
+      <button class="btn sec" id="layoutGalleryBtn" type="button" style="width:100%;margin:6px 0 4px">🖼 View all layouts with an example</button>
       <label>Live example of the layout <small>(optional – the AI may look at it)</small></label>
       <input type="url" id="templateUrl">
       <div class="row">
@@ -406,7 +441,7 @@ let STATE = { data: null, order: { ...DEFAULTS.order }, slots: {}, tab: 'master'
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
 function clean(s){ return (s||'').replace(/\s+/g,' ').trim(); }
 function uniq(arr, key = x => x){ const seen = new Set(); return arr.filter(x => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); }
-function val(id){ return ($(id).value || '').trim(); }
+function val(id){ if (typeof VAL_OVERRIDE !== 'undefined' && VAL_OVERRIDE && id in VAL_OVERRIDE) return String(VAL_OVERRIDE[id] ?? '').trim(); return (($(id) && $(id).value) || '').trim(); }
 function absUrl(u, base){ try { return new URL(u.trim().replace(/&amp;/g,'&'), base).href; } catch { return null; } }
 function keyOf(u){ try { const x = new URL(u); return x.hostname + x.pathname; } catch { return u; } }
 function fileName(u){ try { return decodeURIComponent(new URL(u).pathname.split('/').pop()); } catch { return u; } }
@@ -1358,7 +1393,7 @@ function pbHtml(v){
 }
 function pbImageMap(){
   const map = {};
-  const lines = (val('pbImages') + '\n' + ($('existingImages') ? $('existingImages').value : '')).split('\n');
+  const lines = (val('pbImages') + '\n' + val('existingImages')).split('\n');
   for (const l of lines) {
     const m = l.match(/^\s*([^:\s][^:]*?)\s*[:=]\s*(https?:\/\/\S+)\s*$/); if (!m) continue;
     let k = m[1].trim().toLowerCase().replace(/^images\//, '').replace(/\s+/g, '-');
@@ -1437,7 +1472,8 @@ function renderBuilder(){
   panel.innerHTML = `
     <div class="out-head"><h3>🛠 Page builder</h3><span class="meta">Paste the copy from the AI + image links → finished page (index.html). The master prompt stays the same.</span></div>
     <label><b>Layout</b> <small>(same setting as on the left – the master prompt must be made with the same layout)</small></label>
-    <select id="pbLayout">${layOpts}</select>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="pbLayout" style="flex:1;min-width:240px">${layOpts}</select>
+      <button class="btn sec" id="pbViewEx" type="button">👁 View example</button><button class="btn sec" id="pbLoadEx" type="button">📥 Load example</button><button class="btn sec" id="pbAll" type="button">🖼 All layouts</button></div>
     <div class="hint" style="margin-top:6px">${L.hint}${brandColors(L) && Object.keys(brandColors(L)).length ? '<br>🎨 Brand colours: ' + Object.entries(brandColors(L)).map(([k, v]) => `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${v};vertical-align:-1px"></span> ${BRAND_COLORS.find(b => b[0] === k)[1]}`).join(' · ') : '<br>🎨 Layout default colours (change under Layout, brand &amp; store settings)'}</div>
     <div class="hint">How: 1) Master prompt → new AI chat. 2) The AI returns a <b>COPY BLOCK</b> (one line per slot: <code>S1_TITLE: …</code>) – paste it below. 3) Paste the image links (or leave empty and upload an <code>images/</code> folder next to index.html). 4) <b>Build page</b> → preview → download.<br>${classic ? 'Section order used' : 'Sections'}: ${ord} <small>(${classic ? 'change under Layout, brand &amp; store settings' : 'fixed by the layout'} → Section → image order)</small></div>
     <label><b>1. Copy from the AI</b> <small>(slot format, e.g. <code>HERO_H1: …</code>, <code>S1_P2: **Produkt™ …** …</code>, <code>FAQ_1_Q: … · FAQ_1_A: …</code>)</small></label>
@@ -1484,6 +1520,9 @@ function renderBuilder(){
     const fr = $('pbFrame'); fr.style.display = 'block'; fr.srcdoc = r.html;
     ['pbDl','pbCopyHtml','pbOpen'].forEach(id => $(id).disabled = false);
   };
+  $('pbViewEx').onclick = () => openGallery(layId());
+  $('pbLoadEx').onclick = () => loadExample(layId());
+  $('pbAll').onclick = () => openGallery();
   $('pbLayout').onchange = () => { $('layout').value = $('pbLayout').value; $('layout').dispatchEvent(new Event('change')); };
   $('pbDl').onclick = () => last && download('index.html', last.html);
   $('pbCopyHtml').onclick = () => last && copyText(last.html);
@@ -1615,6 +1654,123 @@ const LAYOUTS = {
     colorDefaults: { colBtn: '#2337c6', colBtnDark: '#18278f', colHi: '#2337c6', colBuy: '#3dba6a' }
   }
 };
+const LAYOUT_SAMPLES = {
+ "classic": {
+  "label": "Magvital™ Magnesium Gummies (Swiss German, our images)",
+  "product": "Magvital™",
+  "copy": "PRODUCT_FULL: Magvital™ Magnesium-Bisglycinat Gummies\nHERO_IMAGE_ALT: für eine ruhige Abendroutine\nDISCLAIMER: Magvital™ ist ein Nahrungsergänzungsmittel. Nahrungsergänzungsmittel sind kein Ersatz für eine abwechslungsreiche und ausgewogene Ernährung und eine gesunde Lebensweise. Die angegebene empfohlene Tagesdosis nicht überschreiten. Ausserhalb der Reichweite von kleinen Kindern aufbewahren. Bei Nierenerkrankungen, Einnahme von Medikamenten, in der Schwangerschaft und Stillzeit vor der Einnahme eine Fachperson fragen. Magvital™ ist kein Arzneimittel und nicht dazu bestimmt, Krankheiten oder Schlafstörungen zu diagnostizieren, zu behandeln oder zu verhindern. Bei anhaltenden Schlafproblemen ärztlichen Rat einholen. Erfahrungsberichte geben individuelle Eindrücke wieder; Ergebnisse können variieren.\nHERO_REVIEW_NAME: Brigitte M.\nHERO_REVIEW_TEXT: «Um drei Uhr wach liegen und grübeln – das kannte ich fast jede Woche. Seit einigen Wochen gehören zwei Magvital™ Gummis fest zu meinem Abend: Tee, ein paar Seiten lesen, Licht aus. Ich fühle mich abends ruhiger und starte ausgeglichener in den Tag. Und sie schmecken richtig fein nach Himbeere.»\nHERO_H1: Magvital™ Magnesium-Gummies für Erwachsene | Ruhige Abende statt Gedankenkarussell – mit Magnesium-Bisglycinat für Nerven und Muskeln\nHERO_BULLET_1: Zwei Gummis am Abend – einfach Teil Ihrer Routine\nHERO_BULLET_2: Magnesium unterstützt die normale Funktion des Nervensystems\nHERO_BULLET_3: Magnesium trägt zu einer normalen Muskelfunktion bei\nHERO_BULLET_4: Magnesium-Bisglycinat – die magenfreundliche Form\nHERO_BULLET_5: 30 Tage Geld-zurück-Garantie\nEXPERT_NAME: Andrea Zürcher\nEXPERT_TITLE: dipl. Drogistin HF\nEXPERT_QUOTE: «Viele Kundinnen und Kunden fragen mich nach Magnesium, wenn die Abende unruhig sind und der Kopf nicht abschalten will. Ich empfehle dann gern Magnesium-Bisglycinat: Hier ist das Magnesium an die Aminosäure Glycin gebunden – eine Form, die als besonders magenfreundlich gilt. Magnesium trägt zu einer normalen Funktion des Nervensystems und der Muskeln bei. Entscheidend ist, es regelmässig einzunehmen.»\nS1_TITLE: Um 3 Uhr hellwach – wenn Körper und Kopf einfach nicht abschalten\nS1_P1: Der Tag war lang, Sie sind müde – und trotzdem kommt Ihr Körper nicht zur Ruhe. Die Schultern sind verspannt, die Beine unruhig, und im Kopf dreht sich das Gedankenkarussell weiter. Und wenn Sie endlich eingeschlafen sind, zeigt der Wecker plötzlich 3:00 Uhr.\nS1_P2: **Magvital™ Magnesium-Bisglycinat Gummies** setzen genau hier an: als einfacher, feiner Teil Ihrer Abendroutine. Magnesium trägt zu einer normalen Funktion des Nervensystems und zu einer normalen Muskelfunktion bei – zwei Gummis am Abend, und Sie können sich ganz auf das Runterfahren konzentrieren.\nS1_P3: Viele nehmen über die Ernährung weniger Magnesium auf, als sie denken – dabei braucht der Körper diesen Mineralstoff jeden Tag. Starten Sie Ihre neue Abendroutine und machen Sie den ersten Schritt zu ruhigeren Abenden.\nS2_TITLE: Lassen Sie unruhige Nächte nicht länger Ihren Tag bestimmen\nS2_P1: Wer nachts wach liegt, spürt es am nächsten Tag: Sie starten erschöpft in den Morgen, sind schneller gereizt und brauchen den dritten Kaffee, um durchzuhalten. Und am Abend beginnt alles von vorne – kaum liegen Sie im Bett, sind die Gedanken wieder da.\nS2_P2: **Magvital™ Magnesium-Bisglycinat Gummies** bringen Ruhe in Ihren Feierabend: Zwei fruchtige Gummis am Abend, dazu eine feste Routine – Handy weg, Licht dimmen, eine Tasse Tee. Magnesium trägt zur Verringerung von Müdigkeit und Ermüdung und zu einer normalen psychischen Funktion bei.\nS2_P3: Nehmen Sie Ihre Abende selbst in die Hand und schaffen Sie wieder mehr Raum für Ruhe, Entspannung und einen ausgeglichenen Start in den Tag.\nS3_TITLE: Was in Magvital™ steckt: Magnesium-Bisglycinat\nS3_P1: Magnesium ist nicht gleich Magnesium. Viele günstige Präparate setzen auf Magnesiumoxid – eine Form, die manche Menschen schlecht vertragen. In **Magvital™ Magnesium-Bisglycinat Gummies** steckt **Magnesium-Bisglycinat**: Hier ist das Magnesium an zwei Moleküle der Aminosäure **Glycin** gebunden.\nS3_P2: **Magnesium** trägt zu einer normalen Funktion des Nervensystems, zu einer normalen Muskelfunktion und zur Verringerung von Müdigkeit und Ermüdung bei. **Glycin** ist eine natürliche Aminosäure, die der Körper auch selbst bildet und die in vielen Lebensmitteln vorkommt. Die gebundene Form gilt als gut verwertbar und besonders magenfreundlich.\nS3_P3: Pro Portion (2 Gummis) erhalten Sie 600 mg Magnesium-Bisglycinat – vegan, ohne Gentechnik und mit fruchtigem Himbeergeschmack. Keine grossen Tabletten, kein Pulver zum Anrühren: einfach geniessen.\nS4_TITLE: Warum Drogistinnen bei Magnesium auf die Form achten\nS4_P1: In der Drogerie gehört Magnesium zu den meistgefragten Mineralstoffen – besonders von Menschen, die viel Stress haben, Sport treiben oder abends schlecht abschalten. Fachleute achten dabei vor allem auf eine Frage: In welcher Form liegt das Magnesium vor?\nS4_P2: Magnesium-Bisglycinat wird gern empfohlen, weil es als gut verträglich gilt. **Magvital™ Magnesium-Bisglycinat Gummies** kombinieren diese Form mit einer einfachen Einnahme: fruchtige Gummis statt grosser Tabletten. Das macht es leichter, Magnesium wirklich regelmässig zu nehmen – und genau darauf kommt es an.\nS4_P3: **Wichtig:** Magvital™ ist ein Nahrungsergänzungsmittel und kein Schlafmittel. Bei anhaltenden Schlafproblemen, Nierenerkrankungen, regelmässiger Medikamenteneinnahme, in der Schwangerschaft oder Stillzeit sprechen Sie bitte vorher mit Ihrer Ärztin, Ihrem Arzt oder Ihrer Drogerie.\nCLOSING_TITLE: Bestellen Sie heute und starten Sie Ihre ruhige Abendroutine\nCLOSING_P1: Haben Sie genug davon, nachts wach zu liegen und morgens erschöpft aufzustehen? So einfach geht’s: **1.** Zwei Gummis am Abend gemäss Packungsangabe. **2.** Zur Ruhe kommen – Handy weg, Tee, ein Buch. **3.** Regelmässig dranbleiben, denn Magnesium ist kein Schalter, den man umlegt.\nCLOSING_P2: **Magvital™ Magnesium-Bisglycinat Gummies** sind durch unsere 30-Tage-Geld-zurück-Garantie abgesichert. Sind Sie nicht zufrieden, schreiben Sie uns einfach eine E-Mail – Sie erhalten Ihr Geld zurück. Ohne komplizierte Formulare und ohne unangenehme Fragen.\nCLOSING_P3: **Bestellen Sie noch heute und machen Sie den ersten Schritt zu ruhigeren Abenden – am besten gleich als 3er-Paket für drei Monate.**\nREVIEW_1_NAME: Brigitte M.\nREVIEW_1_TEXT: «Ich habe früher Magnesium-Brausetabletten genommen und hatte davon oft ein flaues Gefühl im Bauch. Die Gummis vertrage ich problemlos, und sie schmecken wie Himbeer-Bonbons. Zwei Stück nach dem Zähneputzen – das vergesse ich nie.»\nREVIEW_2_NAME: Thomas K.\nREVIEW_2_TEXT: «Ich fahre viel Velo und hatte abends oft das Gefühl, dass meine Beine nicht zur Ruhe kommen. Magvital™ gehört jetzt zu meinem Abend dazu. Nach ein paar Wochen fühle ich mich entspannter. Kein Wundermittel, aber eine gute Gewohnheit.»\nREVIEW_3_NAME: Susanne R.\nREVIEW_3_TEXT: «Mein Kopf läuft abends oft auf Hochtouren. Ich habe mir eine feste Routine angewöhnt: Handy weg, Tee, zwei Magvital™ Gummis, ein Buch. Ich fühle mich viel ruhiger als früher. Schöne Verpackung, schnelle Lieferung in die Schweiz.»\nREVIEW_4_NAME: Ursula B.\nREVIEW_4_TEXT: «Mit 66 schlafe ich nicht mehr wie früher. Meine Drogistin hat mir Magnesium-Bisglycinat empfohlen, und die Gummis sind für mich viel angenehmer als Tabletten. Ich nehme sie seit zwei Monaten und mag meine ruhigen Abende.»\nREVIEW_5_NAME: Martin S.\nREVIEW_5_TEXT: «Viel Stress im Büro, abends noch Mails – mein Kopf war nie wirklich zu Hause. Jetzt habe ich eine feste Routine mit Magvital™ und ohne Handy im Schlafzimmer. Die Abende fühlen sich deutlich ruhiger an.»\nREVIEW_6_NAME: Andrea L.\nREVIEW_6_TEXT: «Die Gummis schmecken richtig gut, fast zu gut – ich muss mich an die zwei Stück halten. Endlich ein Magnesium, das ich nicht vergesse.»\nREVIEW_7_NAME: Erika W.\nREVIEW_7_TEXT: «Ich habe vorher mit meinem Hausarzt gesprochen, weil ich Blutdrucktabletten nehme. Er hatte nichts dagegen. Seitdem nehme ich Magvital™ jeden Abend und fühle mich gut damit.»\nREVIEW_8_NAME: Daniel F.\nREVIEW_8_TEXT: «Ich trainiere viermal pro Woche und nehme Magnesium schon lange. Die Bisglycinat-Gummis vertrage ich besser als das Pulver, das ich vorher hatte. Klare Empfehlung.»\nREVIEW_9_NAME: Monika H.\nREVIEW_9_TEXT: «In den Wechseljahren waren meine Abende oft unruhig. Magvital™ ist kein Wundermittel, aber zusammen mit meiner neuen Abendroutine fühle ich mich viel ausgeglichener. Ich habe schon das 3er-Paket nachbestellt.»\nREVIEW_10_NAME: Hans & Vreni G.\nREVIEW_10_TEXT: «Wir nehmen die Gummis zu zweit, jeden Abend nach den Nachrichten. Ist zu einem kleinen Ritual geworden. Lieferung war schnell und der Kundendienst sehr freundlich.»\nREVIEW_11_NAME: Claudia P.\nREVIEW_11_TEXT: «Als Mutter von zwei kleinen Kindern komme ich abends kaum zur Ruhe. Die Magvital™ Gummis sind mein kleiner Moment für mich. Ich fühle mich weniger erschöpft – Magnesium trägt ja auch zur Verringerung von Müdigkeit bei.»\nFAQ_1_Q: Ist Magvital™ ein Schlafmittel?\nFAQ_1_A: Nein. Magvital™ ist ein Nahrungsergänzungsmittel mit Magnesium-Bisglycinat und kein Schlaf- oder Beruhigungsmittel. Es macht nicht benommen. Magnesium trägt zu einer normalen Funktion des Nervensystems und der Muskeln bei – ideal als Teil einer ruhigen Abendroutine.\nFAQ_2_Q: Was ist der Unterschied zwischen Magnesium-Bisglycinat und normalem Magnesium?\nFAQ_2_A: Bei Magnesium-Bisglycinat ist das Magnesium an die Aminosäure Glycin gebunden. Diese Form gilt als gut verwertbar und besonders magenfreundlich – im Gegensatz zu manchen günstigen Formen wie Magnesiumoxid, die bei empfindlichen Personen den Magen belasten können.\nFAQ_3_Q: Wie nehme ich Magvital™ ein?\nFAQ_3_A: Nehmen Sie täglich 2 Fruchtgummis gemäss Packungsangabe, am besten am Abend. Die empfohlene Tagesdosis nicht überschreiten. Eine Packung enthält 60 Gummis und reicht für 30 Tage.\nFAQ_4_Q: Kann ich Magvital™ täglich einnehmen?\nFAQ_4_A: Ja, Magvital™ ist für die tägliche Einnahme gedacht. Wenn Sie an einer Nierenerkrankung leiden, regelmässig Medikamente einnehmen, schwanger sind, stillen oder bereits andere Magnesiumpräparate verwenden, sprechen Sie bitte vorher mit einer Fachperson.\nFAQ_5_Q: Wann spüre ich etwas?\nFAQ_5_A: Das ist individuell. Magnesium wirkt nicht wie ein Schalter. Viele Kundinnen und Kunden berichten, dass sie sich nach einigen Wochen regelmässiger Einnahme abends entspannter fühlen. Wir empfehlen, Magvital™ mindestens 2–3 Monate täglich einzunehmen.\nFAQ_6_Q: Hilft Magvital™ gegen das Aufwachen um 3 Uhr nachts?\nFAQ_6_A: Nächtliches Aufwachen kann viele Ursachen haben – wir können deshalb nichts versprechen. Magvital™ unterstützt Ihre Abendroutine mit Magnesium für Nerven und Muskeln. Wenn Sie über längere Zeit schlecht schlafen, lassen Sie die Ursache bitte ärztlich abklären.\nFAQ_7_Q: Was, wenn mein Kopf abends nicht abschalten will?\nFAQ_7_A: Viele unserer Kundinnen und Kunden kombinieren Magvital™ mit einer festen Abendroutine: Bildschirme früh weglegen, Licht dimmen, Gedanken aufschreiben, ein Kräutertee. Magnesium trägt zu einer normalen psychischen Funktion bei – die Routine macht den Rest.\nFAQ_8_Q: Ich habe abends unruhige Beine oder Krämpfe – passt Magvital™?\nFAQ_8_A: Magnesium trägt zu einer normalen Muskelfunktion bei, deshalb nehmen viele Sportlerinnen und Sportler Magnesium. Wenn Beschwerden wie Wadenkrämpfe oder unruhige Beine häufig auftreten, sprechen Sie bitte mit Ihrer Ärztin oder Ihrem Arzt.\nFAQ_9_Q: Sind die Gummis vegan?\nFAQ_9_A: Ja. Magvital™ Gummis sind vegan, ohne Gentechnik und haben einen fruchtigen Himbeergeschmack.\nFAQ_10_Q: Was passiert, wenn ich nicht zufrieden bin?\nFAQ_10_A: Dann gilt unsere **30-Tage-Geld-zurück-Garantie**. Schreiben Sie uns einfach an support@vital-konzept.ch – wir erstatten Ihnen den Kaufpreis, ohne komplizierte Formulare.",
+  "images": "logo.png: https://i.imgur.com/o5ZHmFV.png\nhauptbild.webp: https://i.imgur.com/QKea0Wq.gif\nanimation.webp: https://i.imgur.com/4hiB1xs.gif\nvorher-nachher.jpg: https://i.imgur.com/Ce22QPD.jpeg\nmechanik.jpg: https://i.imgur.com/r7YXsAd.jpeg\nmaterial.jpg: https://i.imgur.com/r7YXsAd.jpeg\nexperte.jpg: https://i.imgur.com/wlA5AY1.jpeg\nexperte-avatar.jpg: https://i.imgur.com/e2feJtG.jpeg\nschritte.jpg: https://i.imgur.com/nvviore.jpeg\npaket-1x.jpg: https://i.imgur.com/3kghJMt.jpeg\npaket-2x.jpg: https://i.imgur.com/gTp6Wwk.jpeg\npaket-3x.jpg: https://i.imgur.com/U2BBTU3.jpeg\npaket-5x.jpg: https://i.imgur.com/9UMURqj.jpeg\nsticky.png: https://i.imgur.com/PQiZcJp.png\nreview-01.jpg: https://i.imgur.com/DB9Mvu4.jpeg\nreview-02.jpg: https://i.imgur.com/ypSxwRz.jpeg\nreview-03.jpg: https://i.imgur.com/toOvi8K.jpeg\nreview-04.jpg: https://i.imgur.com/E8DLxrl.jpeg\nreview-05.jpg: https://i.imgur.com/MdChfA2.jpeg\nreview-06.jpg: https://i.imgur.com/NovkZuz.jpeg\nreview-07.jpg: https://i.imgur.com/3WqT6bH.jpeg\nreview-08.jpg: https://i.imgur.com/3PttzKo.jpeg\nreview-09.jpg: https://i.imgur.com/gkPjx9y.jpeg\nreview-10.jpg: https://i.imgur.com/5ulwkcp.jpeg\nreview-11.jpg: https://i.imgur.com/mU9iBfj.jpeg",
+  "order": {
+   "S3": "MATERIAL"
+  },
+  "settings": {
+   "language": "de-CH",
+   "currency": "CHF",
+   "p1": "35/70",
+   "p2": "50/140",
+   "p3": "65/210",
+   "p5": "95/350",
+   "stock": "7",
+   "insurance": "5"
+  }
+ },
+ "advertorial": {
+  "label": "Magvital™ Magnesium Gummies (Swiss German, our images)",
+  "product": "Magvital™",
+  "copy": "PRODUCT_FULL: Magvital™ Magnesium-Bisglycinat Gummies\nHERO_IMAGE_ALT: Magvital™ Magnesium-Gummies – zwei Gummis am Abend für eine ruhige Abendroutine\nDISCLAIMER: Magvital™ ist ein Nahrungsergänzungsmittel. Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene, abwechslungsreiche Ernährung und eine gesunde Lebensweise.\nTOPBAR_TEXT: 50 % RABATT – nur noch heute\nRATING_TEXT: Hervorragend 4,8 | 13’428 Bewertungen\nHERO_H1: Magvital™ Gummies | **Ruhige Abende** statt Gedankenkarussell\nHERO_SAVE_LABEL: SIE SPAREN\nHERO_BULLET_1: Zwei Gummis am Abend – fertig\nHERO_BULLET_2: Magnesium-Bisglycinat, gut verträglich\nHERO_BULLET_3: Fruchtig-feiner Himbeergeschmack\nHERO_BULLET_4: Ohne Wasser, ohne Tabletten schlucken\nHERO_BULLET_5: 30 Tage Geld-zurück-Garantie\nCTA_LABEL: JETZT BESTELLEN ⬇\nPRESS_LABEL: Bekannt aus:\nPRESS_NAMES:\nPAYMENT_METHODS: TWINT, VISA, Mastercard, Apple Pay, PostFinance\nBENEFIT_1: Kostenloser Versand in der ganzen Schweiz\nBENEFIT_2: Persönlicher Kundenservice\nBENEFIT_3: 30 Tage Geld-zurück-Garantie\nURGENCY_TEXT: 50 % Rabatt endet heute um 23:59 Uhr\nSTOCK_TEXT: nur noch {stock} an Lager\nVIEWERS_TEXT: {n} Personen sehen sich dieses Angebot gerade an\nS1_TITLE: Wenn der Kopf abends **einfach nicht abschaltet**\nS1_P1: Der Tag ist vorbei, doch die Gedanken drehen sich weiter: To-do-Listen, Termine, offene Fragen. **Magvital™ Gummies** liefern Magnesium in der gut verträglichen Bisglycinat-Form – als feine Fruchtgummis, die Sie ganz einfach in Ihre Abendroutine einbauen.\nS1_P2: Zwei Gummis nach dem Abendessen, ein Tee, ein paar Seiten lesen. **Keine Tabletten, kein Wasser, kein Aufwand** – nur ein kleines Ritual, auf das Sie sich jeden Abend freuen.\nS2_QUOTE_TITLE: «Endlich wieder **ruhige Abende** – ohne Grübeln»\nS2_QUOTE: «Jahrelang lag ich abends wach und habe über alles Mögliche nachgedacht. **Morgens fühlte ich mich wie gerädert.** Eine Freundin hat mir Magvital™ empfohlen. Seit ein paar Wochen gehören die zwei Gummis fest zu meinem Abend. **Ich fühle mich abends ruhiger** und starte ausgeglichener in den Tag. Und sie schmecken richtig fein.»\nS2_AUTHOR: Brigitte Meier, 58 Jahre\nS3_TITLE: Von **Fachpersonen** geschätzt\nS3_P1: Magnesium trägt zu einer normalen Funktion des Nervensystems und zur Verringerung von Müdigkeit bei. Magvital™ setzt auf **Magnesium-Bisglycinat** – eine Form, die als besonders gut verträglich gilt.\nS3_P2: «Viele Kundinnen und Kunden fragen mich nach Magnesium. **Gummies sind eine einfache Lösung** für alle, die keine Tabletten mögen.» – Andrea Zürcher, dipl. Drogistin HF\nS3_BULLET_1: Magnesium-Bisglycinat statt Billig-Oxid\nS3_BULLET_2: Zwei Gummis pro Tag genügen\nS3_BULLET_3: Ohne künstliche Farbstoffe\nS3_BULLET_4: Ideal für die Abendroutine\nCOMPARE_TITLE: Magvital™ im Vergleich\nCOMPARE_OTHER: Tabletten & Pulver\nCOMPARE_1: Gut verträgliches Bisglycinat\nCOMPARE_2: Ohne Wasser einnehmen\nCOMPARE_3: Feiner Fruchtgeschmack\nCOMPARE_4: Einfach dosiert\nCOMPARE_5:\nS4_TITLE: Ein kleines Ritual. **Grosse Wirkung auf Ihren Abend.**\nS4_P1: Viele Magnesium-Präparate sind grosse Tabletten oder Pulver, die man auflösen muss – und die oft schnell in der Schublade landen. **Magvital™ ist anders:** zwei Fruchtgummis, die Sie gerne nehmen, Abend für Abend. So bleiben Sie dran.\nS4_P2: Jede Packung enthält 60 Gummis – **genug für einen ganzen Monat.** Hergestellt nach hohen Qualitätsstandards.\nREVIEWS_SCORE_TEXT: Basierend auf 13’428 Bewertungen\nREVIEWS_TITLE: Glauben Sie nicht nur uns – lesen Sie, was andere sagen!\nREVIEWS_SUB: 13’428+ verifizierte Bewertungen\nREVIEW_1_NAME: Monika S.\nREVIEW_1_TEXT: Ich nehme die Gummis seit einem Monat und freue mich jeden Abend darauf. Endlich ein Magnesium, das ich nicht vergesse. Sehr empfehlenswert!\nREVIEW_2_NAME: Thomas K.\nREVIEW_2_TEXT: Als Schichtarbeiter fällt mir das Abschalten schwer. Pulver war mir immer zu umständlich. Mit Magvital™ ist es ganz einfach: zwei Gummis nach der Schicht und mein Abend fühlt sich ruhiger an. Ich habe gleich das 3er-Paket nachbestellt.\nREVIEW_3_NAME: Ruth B.\nREVIEW_3_TEXT: Ich habe Magvital™ für meinen Mann gekauft, der keine Tabletten schlucken mag. Jetzt nehmen wir beide jeden Abend unsere Gummis.\nCLOSING_TITLE: Bestellen Sie **Magvital™** – Ihre einfache Wahl für ruhige Abende\nCLOSING_P1: Stress und volle Tage kennt fast jeder. Mit Magvital™ erhalten Sie eine **einfache, feine und preiswerte** Ergänzung für Ihre Abendroutine.\nCLOSING_P2: Zwei Gummis am Abend – zu Hause, auf Reisen oder nach einem langen Arbeitstag. **Bestellen Sie heute und profitieren Sie von 50 % Rabatt.**\nFAQ_TITLE: Haben Sie eine Frage?\nFAQ_SUB: Wir helfen gerne!\nFAQ_1_Q: Ist Magvital™ ein Schlafmittel?\nFAQ_1_A: Nein. Magvital™ ist ein Nahrungsergänzungsmittel mit Magnesium und ersetzt keine ärztliche Behandlung.\nFAQ_2_Q: Wie nehme ich die Gummis ein?\nFAQ_2_A: Zwei Gummis pro Tag, am besten am Abend. Die empfohlene Tagesdosis nicht überschreiten.\nFAQ_3_Q: Für wen ist Magvital™ geeignet?\nFAQ_3_A: Für Erwachsene, die ihre Magnesiumzufuhr einfach ergänzen möchten. Schwangere und Personen mit Erkrankungen sprechen vorher mit ihrer Ärztin oder ihrem Arzt.\nFAQ_4_Q: Wie lange reicht eine Packung?\nFAQ_4_A: Eine Packung enthält 60 Gummis und reicht bei zwei Gummis pro Tag für 30 Tage.\nFAQ_5_Q: Wie schnell wird geliefert?\nFAQ_5_A: Wir versenden innerhalb von 1–2 Werktagen kostenlos in der ganzen Schweiz. Sie haben 30 Tage Geld-zurück-Garantie.\nPKG_BADGE_5: BESTES ANGEBOT\nPKG_BADGE_3: MEISTGEKAUFT\nPKG_BADGE_2: BASIS-ANGEBOT\nPKG_BADGE_1: BASIS-ANGEBOT\nPKG_TOTAL_LABEL: Gesamt: nur\nPKG_PER_LABEL: Nur\nPKG_PER_UNIT: /Stück\nPKG_GUARANTEE: 30 Tage Geld-zurück-Garantie\nPKG_BUTTON: BESTELLEN\nGUARANTEE_DAYS: 30\nGUARANTEE_BADGE: TAGE\nGUARANTEE_TITLE: 30 Tage Geld-zurück-Garantie\nGUARANTEE_P1: Ihre Zufriedenheit steht für uns an erster Stelle. Wir stehen voll hinter der Qualität von Magvital™ und möchten, dass Sie sicher und sorgenfrei einkaufen.\nGUARANTEE_P2: Deshalb haben Sie 30 Tage Zeit: Sind Sie nicht zufrieden, erhalten Sie Ihr Geld zurück – ganz unkompliziert.\nFOOTER_HELP: Brauchen Sie Hilfe?\nFOOTER_PHONE_LABEL: Auch per Telefon",
+  "images": "logo.png: https://i.imgur.com/o5ZHmFV.png\nhero-1.jpg: https://i.imgur.com/QKea0Wq.gif\nhero-2.jpg: https://i.imgur.com/UQiwRyq.png\ns1.jpg: https://i.imgur.com/4hiB1xs.gif\ns2.jpg: https://i.imgur.com/Ce22QPD.jpeg\ns3.jpg: https://i.imgur.com/wlA5AY1.jpeg\nabschluss.jpg: https://i.imgur.com/m6cM4ZI.jpeg\nprodukt.png: https://i.imgur.com/UQiwRyq.png\nreview-01.jpg: https://i.imgur.com/E8DLxrl.jpeg\nreview-02.jpg: https://i.imgur.com/ypSxwRz.jpeg\nreview-03.jpg: https://i.imgur.com/3WqT6bH.jpeg\npaket-5x.jpg: https://i.imgur.com/9UMURqj.jpeg\npaket-3x.jpg: https://i.imgur.com/U2BBTU3.jpeg\npaket-2x.jpg: https://i.imgur.com/gTp6Wwk.jpeg\npaket-1x.jpg: https://i.imgur.com/3kghJMt.jpeg",
+  "settings": {
+   "language": "de-CH",
+   "currency": "CHF",
+   "p1": "35/70",
+   "p2": "50/140",
+   "p3": "65/210",
+   "p5": "95/350",
+   "stock": "7"
+  }
+ }
+};
+/* ---------- LAYOUT EXAMPLES: every layout ships with sample copy + hosted images ----------
+   "View example" fills the layout with this data (your brand name / domain / e-mail / colours are applied).
+   When you add a layout, add a sample here too (copy = COPY BLOCK, images = "file: URL" lines). */
+let VAL_OVERRIDE = null;
+function buildExample(id, brand){
+  const S = LAYOUT_SAMPLES[id]; if (!S) return null;
+  const prevOrder = STATE.order;
+  VAL_OVERRIDE = Object.assign({ productName: S.product, pbCopy: S.copy, pbImages: S.images, existingImages: '', pbFull: '', pbV1: '', pbV2: '', pbV3: '', pbV5: '', pbVins: '' }, S.settings);
+  if (!brand) BRAND_COLORS.forEach(([k]) => VAL_OVERRIDE[k] = '');
+  STATE.order = { ...DEFAULTS.order, ...(S.order || {}) };
+  try { return id === 'classic' ? pbBuild() : pbBuildLayout(LAYOUTS[id]); }
+  catch (e) { console.error(e); return { html: '<p style="font:14px sans-serif;padding:20px">Example could not be built: ' + e.message + '</p>' }; }
+  finally { VAL_OVERRIDE = null; STATE.order = prevOrder; }
+}
+let GAL = { view: null, device: 'mobile', brand: true };
+function hasBrandColors(){ return Object.keys(brandColors(LAY())).length > 0; }
+function openGallery(view){
+  GAL.view = view || null; GAL.brand = hasBrandColors();
+  if (!$('lgModal')) {
+    const m = document.createElement('div'); m.id = 'lgModal'; m.className = 'lg-modal';
+    m.innerHTML = '<div class="lg-box"><div class="lg-head"><div id="lgTitle"></div><div id="lgTools"></div><button class="lg-x" id="lgClose" title="Close (Esc)">✕</button></div><div id="lgBody"></div></div>';
+    document.body.appendChild(m);
+    m.addEventListener('click', e => { if (e.target === m) closeGallery(); });
+    $('lgClose').onclick = closeGallery;
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && m.classList.contains('show')) closeGallery(); });
+  }
+  renderGallery(); $('lgModal').classList.add('show'); document.body.style.overflow = 'hidden';
+}
+function closeGallery(){ const m = $('lgModal'); if (!m) return; m.classList.remove('show'); document.body.style.overflow = ''; $('lgBody').innerHTML = ''; }
+function brandToggle(){ return hasBrandColors() ? `<label class="lg-tg"><input type="checkbox" id="lgBrand" ${GAL.brand ? 'checked' : ''}> with my brand colours</label>` : ''; }
+function useLayout(id){ if (layId() === id) return; $('layout').value = id; $('layout').dispatchEvent(new Event('change')); toast('Layout: ' + LAYOUTS[id].name.split(' – ')[0]); }
+function loadExample(id){
+  const S = LAYOUT_SAMPLES[id]; if (!S) return;
+  const has = (PB.pbCopy || '').trim() || (PB.pbImages || '').trim();
+  if (has && !confirm(`Replace the copy and image links in the Page builder with the example (${S.label})?\nThe product name is set to ${S.product}.`)) return;
+  useLayout(id);
+  PB.pbCopy = S.copy; PB.pbImages = S.images; PB.pbFull = ''; localStorage.setItem('lkg_builder', JSON.stringify(PB));
+  $('productName').value = S.product; saveSettings();
+  closeGallery(); STATE.tab = 'builder'; render();
+  setTimeout(() => { if ($('pbBuild')) $('pbBuild').click(); }, 60);
+}
+function renderGallery(){
+  const body = $('lgBody'), tools = $('lgTools'), title = $('lgTitle');
+  if (!GAL.view) {
+    title.innerHTML = '🖼 Layouts <small>click a layout to see the full example</small>';
+    tools.innerHTML = brandToggle();
+    body.innerHTML = `<div class="lg-grid">${Object.entries(LAYOUTS).map(([id, L]) => `
+      <div class="lg-card${id === layId() ? ' cur' : ''}">
+        <div class="lg-thumb" data-view="${id}" title="View example"><iframe data-id="${id}" tabindex="-1"></iframe><span class="lg-zoom">👁 View example</span></div>
+        <div class="lg-info">
+          <h4>${L.name.split(' – ')[0]} ${id === layId() ? '<span class="lg-badge">selected</span>' : ''}</h4>
+          <p>${L.name.split(' – ')[1] || ''}</p>
+          <small>${L.hint}</small>
+          <small class="lg-ex">Example: ${LAYOUT_SAMPLES[id] ? LAYOUT_SAMPLES[id].label : '—'}</small>
+          <div class="lg-btns"><button class="btn sec sm" data-view="${id}">👁 View example</button>
+            <button class="btn sec sm" data-load="${id}">📥 Load into Page builder</button>
+            <button class="btn sm" data-use="${id}"${id === layId() ? ' disabled' : ''}>${id === layId() ? '✓ In use' : 'Use this layout'}</button></div>
+        </div>
+      </div>`).join('')}</div>
+      <p class="lg-note">The examples use sample copy and images. Your brand name, domain and e-mail${GAL.brand ? ' and colours' : ''} from the settings are applied, so you see how YOUR page would look in each layout.</p>`;
+    body.querySelectorAll('iframe[data-id]').forEach(f => { const r = buildExample(f.dataset.id, GAL.brand); f.srcdoc = r ? r.html : '<p style="font:14px sans-serif;padding:20px">No example yet</p>'; });
+  } else {
+    const id = GAL.view, L = LAYOUTS[id], S = LAYOUT_SAMPLES[id] || { label: '—' };
+    title.innerHTML = `<button class="btn sec sm" id="lgBack">← All layouts</button> <span>${L.name.split(' – ')[0]}</span> <small>example: ${S.label}</small>`;
+    tools.innerHTML = `<span class="seg"><button data-dev="mobile" class="${GAL.device === 'mobile' ? 'on' : ''}">📱 Mobile</button><button data-dev="desktop" class="${GAL.device === 'desktop' ? 'on' : ''}">🖥 Desktop</button></span>
+      ${brandToggle()}<button class="btn sec sm" id="lgDl">⬇ Example HTML</button><button class="btn sec sm" data-load="${id}">📥 Load into Page builder</button>
+      ${id !== layId() ? `<button class="btn sm" data-use="${id}">Use this layout</button>` : '<span class="lg-badge">selected</span>'}`;
+    const r = buildExample(id, GAL.brand);
+    body.innerHTML = `<div class="lg-stage ${GAL.device}"><iframe id="lgFrame" title="Example"></iframe></div>`;
+    $('lgFrame').srcdoc = r ? r.html : '<p style="font:14px sans-serif;padding:20px">No example yet</p>';
+    $('lgBack').onclick = () => { GAL.view = null; renderGallery(); };
+    tools.querySelectorAll('[data-dev]').forEach(b => b.onclick = () => { GAL.device = b.dataset.dev; renderGallery(); });
+    $('lgDl').onclick = () => r && download(`example-${id}.html`, r.html);
+  }
+  const m = $('lgModal');
+  m.querySelectorAll('[data-view]').forEach(el => el.onclick = () => { GAL.view = el.dataset.view; renderGallery(); });
+  m.querySelectorAll('[data-use]').forEach(el => el.onclick = () => { useLayout(el.dataset.use); renderGallery(); });
+  m.querySelectorAll('[data-load]').forEach(el => el.onclick = () => loadExample(el.dataset.load));
+  if ($('lgBrand')) $('lgBrand').onchange = () => { GAL.brand = $('lgBrand').checked; renderGallery(); };
+}
+
 function LAY(){ return LAYOUTS[$('layout') ? $('layout').value : 'classic'] || LAYOUTS.classic; }
 function layId(){ return LAYOUTS[$('layout') && $('layout').value] ? $('layout').value : 'classic'; }
 function layFiles(L){ return L.images ? L.images.map(x => x[0]) : PB_FILES; }
@@ -1786,7 +1942,7 @@ function pbMoney(x){
 function pbPlain(v){ return String(v).replace(/\*\*/g, '').replace(/<[^>]+>/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 function pbImageMapLayout(L){
   const files = layFiles(L); const map = {};
-  const lines = (val('pbImages') + '\n' + ($('existingImages') ? $('existingImages').value : '')).split('\n');
+  const lines = (val('pbImages') + '\n' + val('existingImages')).split('\n');
   for (const l of lines) {
     const m = l.match(/^\s*([^:\s][^:]*?)\s*[:=]\s*(https?:\/\/\S+)\s*$/); if (!m) continue;
     const k = m[1].trim().toLowerCase().replace(/^images\//, '').replace(/\s+/g, '-'); const kb = k.replace(/\.[a-z0-9]+$/, '');
@@ -1877,6 +2033,7 @@ function render(){
     </div>
     <pre class="out" id="outPre"></pre>`;
   $('outPre').textContent = text;
+  if (STATE.tab === 'template') { const b = document.createElement('button'); b.className = 'btn'; b.textContent = '👁 View filled example'; b.onclick = () => openGallery(layId()); $('copyBtn').parentNode.insertBefore(b, $('copyBtn')); }
   $('copyBtn').onclick = () => copyText(text);
   const FN = { template: LAY().tplName, imgscript: LAY().scriptName };
   $('dlBtn').textContent = FN[STATE.tab] ? '⬇ Download ' + FN[STATE.tab] : '⬇ Download .md';
@@ -1966,6 +2123,7 @@ BRAND_COLORS.forEach(([k]) => {
   $(k + 'Pick').addEventListener('input', () => { $(k).value = $(k + 'Pick').value; saveSettings(); if (STATE.tab === 'builder' || STATE.data) render(); });
   $(k).addEventListener('input', () => applyLayoutUI());
 });
+$('layoutGalleryBtn').onclick = () => openGallery();
 loadSettings(); applyLayoutUI(); renderOrderGrid(); render();
 </script>
 </body>

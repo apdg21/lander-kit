@@ -61,6 +61,13 @@ Choose the layout under **Layout, brand & store settings** (or at the top of the
 | **Classic** | hero with animated main image · press strip · S1 GIF · S2 before/after · S3 product/material · S4 expert · 3 reviews · closing with steps · FAQ · 4 packages + shipping insurance · review grid · sticky bar. Fixed texts German. | `public/template.html`, `public/build_images.py` |
 | **Advertorial** | top bar countdown · hero gallery + rating + 5 checks · S1 problem image · S2 customer story (✗/✓ image) · S3 expert + checks · comparison table + S4 · 3 review cards · closing image · FAQ · 4 packages 5x/3x/2x/1x · guarantee · contact box. **Every text is a slot → any language.** The product badge, ✗/✓ marks and stars are added by the page (no text in images). | `public/layouts/advertorial.html`, `public/layouts/advertorial_images.py` |
 
+**See every layout with an example:** click **🖼 View all layouts with an example** (left, under the layout dropdown), or **👁 View example** / **🖼 All layouts** in the Page builder, or **👁 View filled example** in the Sample page tab.
+- The gallery shows a live thumbnail of each layout. Click it to see the full example page, filled automatically with sample copy and images (📱 mobile / 🖥 desktop).
+- Your brand name, domain, e-mail and (toggle) brand colours are applied, so you see how YOUR page would look. Your own inputs are not touched.
+- **📥 Load into Page builder** puts the example copy + image links into the builder and builds the page at once – a good starting point to try things.
+- **⬇ Example HTML** downloads the example page.
+- New layout = also add a sample to `LAYOUT_SAMPLES` in index.html (COPY BLOCK + `file: URL` lines + sample prices/language).
+
 **Brand settings** (apply to every layout): brand / company name (footer ©), phone and address (optional, footer), 4 colours (buttons, button hover, highlight, package buttons – empty = layout default), store domain, support e-mail, language, currency, prices, stock.
 
 **Advertorial specifics**
