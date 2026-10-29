@@ -9,7 +9,7 @@ Paste a competitor product page link and get everything you need to build a new 
 | Copy template | Every text slot of the template (hero, S1–S5, reviews, FAQ, packages …) with word limits and rules |
 | Image prompts | Packaging reference → main/hero composite → before/after → mechanics → steps → doctor → testimonial → closing → bundles → sticky → review photos |
 | Checklist | Intake, copy, compliance (Meta + UWG/HMG), images, template leftovers, checkout, QA |
-| 🛠 **Page builder** | Paste the AI's **COPY BLOCK** (one line per slot, `S1_TITLE: …`) + image links → preview → download the finished `index.html`. Fills prices, stock, Shopify variant IDs and the section order from your settings. Works fully in the browser. |
+| 🛠 **Page builder** | Paste the AI's **COPY BLOCK** (one line per slot, `S1_TITLE: …`) + one link per image (own input row per image, depends on the layout) → preview → download the finished `index.html`. Fills prices, stock, Shopify variant IDs and the section order from your settings. Works fully in the browser. |
 | Competitor images | All images found on the page. Mark which one is the main / before-after / doctor … with the dropdowns |
 
 Every tab has **Copy**, **Download .md** and **Download all**.
@@ -48,7 +48,7 @@ Then click Analyze again. Manual mode works without any URL.
 ## Page builder (after the AI has written the copy)
 1. The master prompt asks the AI for a **COPY BLOCK** at the end of Phase 1 (plain lines `SLOT_ID: text`).
 2. Open the **🛠 Page builder** tab and paste that block into box 1.
-3. Box 2: image links, one per line `file: URL` (e.g. `hauptbild.webp: https://i.imgur.com/….gif`). Click **Insert list of all image file names** to get all names. Files without a link stay `images/<file>` (then upload an `images/` folder next to index.html). Links from "Our existing images" are used too.
+3. Box 2 – **Images**: one input row per image, generated from the selected layout (Classic: also follows the section order). Each row shows a thumbnail preview, the name, the file name, what the image must show, whether it is optional, and a status (✅ link · ☑️ from "Our existing images" · ⭕ missing · ➖ optional). A counter shows how many required images have a link. Rows without a link stay `images/<file>` (then upload an `images/` folder next to index.html). Each layout keeps its own list. **Paste many links at once** (under the rows) fills the rows from `file: URL` lines – also with loose names like `hauptbild`, `review-1`, `closing`.
 4. Box 3: full product name + Shopify variant IDs (1x/2x/3x/5x/insurance).
 5. **Build page** → the report shows missing slots (they appear as `{{…}}`) and images that are still local → preview below → **Download index.html** / **Copy HTML** (for Funnelish custom HTML).
 The master prompt itself is unchanged – any AI can still build the full page on its own.
@@ -59,7 +59,7 @@ Choose the layout under **Layout, brand & store settings** (or at the top of the
 | Layout | Structure | Files |
 |---|---|---|
 | **Classic** | hero with animated main image · press strip · S1 GIF · S2 before/after · S3 product/material · S4 expert · 3 reviews · closing with steps · FAQ · 4 packages + shipping insurance · review grid · sticky bar. Fixed texts German. | `public/template.html`, `public/build_images.py` |
-| **Advertorial** | top bar countdown · hero gallery + rating + 5 checks · S1 problem image · S2 customer story (✗/✓ image) · S3 expert + checks · comparison table + S4 · 3 review cards · closing image · FAQ · 4 packages 5x/3x/2x/1x · guarantee · contact box. **Every text is a slot → any language.** The product badge, ✗/✓ marks and stars are added by the page (no text in images). | `public/layouts/advertorial.html`, `public/layouts/advertorial_images.py` |
+| **Advertorial** | desktop: 2 columns (text + image, alternating sides), packages 4 in a row – mobile: one column, image above text · top bar countdown · hero gallery + rating + 5 checks · S1 problem image · S2 customer story (✗/✓ image) · S3 expert + checks · comparison table + S4 · 3 review cards · closing image · FAQ · 4 packages 5x/3x/2x/1x · guarantee · contact box + legal links (Shopify `/policies/…` of the store domain). **Every text is a slot → any language.** The product badge, ✗/✓ marks and stars are added by the page (no text in images). | `public/layouts/advertorial.html`, `public/layouts/advertorial_images.py` |
 
 **See every layout with an example:** click **🖼 View all layouts with an example** (left, under the layout dropdown), or **👁 View example** / **🖼 All layouts** in the Page builder, or **👁 View filled example** in the Sample page tab.
 - The gallery shows a live thumbnail of each layout. Click it to see the full example page, filled automatically with sample copy and images (📱 mobile / 🖥 desktop).

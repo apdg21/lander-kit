@@ -5,7 +5,9 @@
  Structure: topbar countdown · logo · hero (image gallery + rating + H1 + price + 5 checks + CTA
  + press names + payment badges + 3 benefits) · S1 problem image · S2 customer story (✗ / ✓ image)
  · S3 expert + 4 checks · comparison table + S4 text · 3 review cards · closing image · FAQ
- · 4 packages (5x / 3x / 2x / 1x) · guarantee · contact footer.
+ · 4 packages (5x / 3x / 2x / 1x) · guarantee · contact footer + legal links.
+ Desktop: sections are 2 columns (.split = text left / image right, .split.rev = image left),
+ press strip full width under the hero, packages 4 in a row. Mobile: one column, image above the text.
  RULES
  - Replace every {{TOKEN}}. **text** in the copy = bold (in headings: highlight colour).
  - <!--IF:KEY--> … <!--/IF:KEY-->  = optional block, delete it when KEY is empty.
@@ -80,6 +82,7 @@ h1 strong,h2 strong,h3 strong{color:var(--hi)}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:0 auto;background:var(--btn);color:#fff;text-decoration:none;font-weight:800;font-size:22px;letter-spacing:.5px;padding:15px 22px;border-radius:40px;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:.15s;text-transform:uppercase}
 .btn:hover{background:var(--btn-dark);transform:translateY(-1px)}
 .press{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:22px 0 6px;color:#888}
+.press-row{border-top:1px solid var(--line);padding:6px 18px 14px}
 .press>span{font-weight:700;color:#222;font-size:15px}
 .press-names{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
 .press-names span{font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#9a9a9a;letter-spacing:-.3px;filter:grayscale(1)}
@@ -110,6 +113,19 @@ h2{font-size:28px;line-height:1.2;font-weight:800;text-align:center;margin-botto
 .live i{display:inline-block;margin-right:8px;vertical-align:1px;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.6s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 .sec .checks{max-width:520px;margin:6px auto 0}
+/* 2-column sections on desktop (mobile: image always above the text) */
+.split{max-width:640px;margin:0 auto;padding:0 18px;display:grid;grid-template-columns:1fr;gap:0}
+.split>*{min-width:0}
+.split .media{order:-1}
+.mob-only{display:block}
+@media(min-width:900px){
+  .split{max-width:1120px;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .split .media{order:2}
+  .split.rev .media{order:-1}
+  .split .pimg,.split .cmp{margin-bottom:0}
+  .split h2{font-size:30px}
+  .mob-only{display:none}
+}
 /* comparison */
 .cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:3px solid var(--hi);border-radius:var(--radius);overflow:hidden;margin-bottom:30px}
 .cmp th,.cmp td{padding:12px 8px;text-align:center;border-bottom:1px solid var(--line);font-size:15px}
@@ -163,7 +179,14 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
 .pkg.top .buy{background:var(--buy)}
 .pkg.low .buy{background:#9a9a9a}
 .buy:hover{filter:brightness(.92)}
-@media(min-width:900px){.pkgs{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:900px){
+  .pkgs{grid-template-columns:repeat(4,1fr);gap:18px;align-items:end}
+  .pkg{grid-template-columns:1fr;padding:44px 14px 16px;text-align:center}
+  .pkg .tag{left:0;right:0;text-align:center}
+  .pkg>img{width:100%;height:auto;aspect-ratio:1/1;justify-self:center}
+  .pk-info{text-align:center}
+  .pk-info h3{font-size:22px}
+}
 /* guarantee + footer */
 .gbadge{width:110px;height:110px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle,#fff 52%,#1f8f3a 53%,#1f8f3a 62%,#ffd34d 63%,#ffd34d 70%,#1f8f3a 71%);display:grid;place-items:center;text-align:center;color:#1f8f3a;font-weight:900;line-height:1}
 .gbadge b{font-size:34px;display:block}.gbadge small{font-size:12px}
@@ -172,7 +195,9 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
 .contact a{color:var(--hi);font-weight:700;text-decoration:none}
 .contact .addr{font-size:14px;color:#333}
 .contact .disc{font-size:14px;color:#333}
-.copy{text-align:center;font-weight:700;padding:26px 0 40px;font-size:15px}
+.copy{text-align:center;font-weight:700;padding:22px 0 8px;font-size:15px}
+.legal{display:flex;justify-content:center;gap:8px 20px;flex-wrap:wrap;padding:0 0 40px;font-size:14px}
+.legal a{color:var(--hi);text-decoration:underline}
 </style>
 </head>
 <body>
@@ -207,8 +232,8 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
       <li>{{HERO_BULLET_5}}</li>
     </ul>
     <a class="btn" href="#offer">{{CTA_LABEL}}</a>
-    <!--IF:PRESS_NAMES--><div class="press"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div><!--/IF:PRESS_NAMES-->
     <div class="pay">{{PAYMENT_METHODS}}</div>
+    <p class="live" style="margin-bottom:12px"><i></i><span>{{VIEWERS_TEXT}}</span></p>
     <div class="benefits">
       <div><i>🚚</i>{{BENEFIT_1}}</div>
       <div><i>💬</i>{{BENEFIT_2}}</div>
@@ -216,35 +241,41 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
     </div>
   </div>
 </section>
+<!--IF:PRESS_NAMES--><div class="press-row wrap"><div class="press"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div></div><!--/IF:PRESS_NAMES-->
 
 <!-- ============ S1 – PROBLEM / PRODUCT INTRO ============ -->
 <section class="sec soft">
-  <div class="wrap narrow">
-    <div class="pimg"><img src="images/s1.jpg" alt="{{S1_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+  <div class="split">
+    <div class="media"><div class="pimg"><img src="images/s1.jpg" alt="{{S1_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div></div>
+    <div class="txt">
     <h2>{{S1_TITLE}}</h2>
     <p>{{S1_P1}}</p>
     <p>{{S1_P2}}</p>
     <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
     <p class="live"><i></i><span>{{VIEWERS_TEXT}}</span></p>
+    </div>
   </div>
 </section>
 
 <!-- ============ S2 – CUSTOMER STORY (image: top = problem ✗, bottom = solved ✓) ============ -->
 <section class="sec">
-  <div class="wrap narrow">
-    <div class="pimg"><img src="images/s2.jpg" alt="{{S2_QUOTE_TITLE_PLAIN}}" loading="lazy"><span class="mark x">✗</span><span class="mark ok">✓</span><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+  <div class="split rev">
+    <div class="media"><div class="pimg"><img src="images/s2.jpg" alt="{{S2_QUOTE_TITLE_PLAIN}}" loading="lazy"><span class="mark x">✗</span><span class="mark ok">✓</span><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div></div>
+    <div class="txt">
     <h2>{{S2_QUOTE_TITLE}}</h2>
     <p class="quote">{{S2_QUOTE}}</p>
     <p class="author">{{S2_AUTHOR}}</p>
     <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
-    <!--IF:PRESS_NAMES--><div class="press"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div><!--/IF:PRESS_NAMES-->
+    <!--IF:PRESS_NAMES--><div class="press mob-only"><span>{{PRESS_LABEL}}</span><div class="press-names">{{PRESS_NAMES}}</div></div><!--/IF:PRESS_NAMES-->
+    </div>
   </div>
 </section>
 
 <!-- ============ S3 – EXPERT ============ -->
 <section class="sec soft">
-  <div class="wrap narrow">
-    <div class="pimg"><img src="images/s3.jpg" alt="{{S3_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+  <div class="split">
+    <div class="media"><div class="pimg"><img src="images/s3.jpg" alt="{{S3_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div></div>
+    <div class="txt">
     <h2>{{S3_TITLE}}</h2>
     <p class="left">{{S3_P1}}</p>
     <p class="left">{{S3_P2}}</p>
@@ -255,12 +286,14 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
       <li>{{S3_BULLET_4}}</li>
     </ul>
     <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+    </div>
   </div>
 </section>
 
 <!-- ============ COMPARISON + S4 ============ -->
 <section class="sec">
-  <div class="wrap narrow">
+  <div class="split rev">
+    <div class="media">
     <!--IF:COMPARE_TITLE--><h2>{{COMPARE_TITLE}}</h2><!--/IF:COMPARE_TITLE-->
     <table class="cmp">
       <thead><tr>
@@ -276,10 +309,13 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
         <!--IF:COMPARE_5--><tr><td>{{COMPARE_5}}</td><td class="us y">✔</td><td class="n">✘</td></tr><!--/IF:COMPARE_5-->
       </tbody>
     </table>
+    </div>
+    <div class="txt">
     <h2>{{S4_TITLE}}</h2>
     <p>{{S4_P1}}</p>
     <p>{{S4_P2}}</p>
     <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}} ({{STOCK_TEXT}})</p></div>
+    </div>
   </div>
 </section>
 
@@ -302,12 +338,14 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
 
 <!-- ============ CLOSING ============ -->
 <section class="sec soft">
-  <div class="wrap narrow">
-    <div class="pimg"><img src="images/abschluss.jpg" alt="{{CLOSING_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div>
+  <div class="split">
+    <div class="media"><div class="pimg"><img src="images/abschluss.jpg" alt="{{CLOSING_TITLE_PLAIN}}" loading="lazy"><span class="pbadge"><img src="images/produkt.png" alt="{{PRODUCT}}"></span></div></div>
+    <div class="txt">
     <h2>{{CLOSING_TITLE}}</h2>
     <p class="left">{{CLOSING_P1}}</p>
     <p class="left">{{CLOSING_P2}}</p>
     <div class="cta"><a class="btn" href="#offer">{{CTA_LABEL}}</a><p class="urg">{{URGENCY_TEXT}}</p></div>
+    </div>
   </div>
 </section>
 
@@ -365,6 +403,7 @@ details p{padding:0 4px 16px;text-align:left !important;color:#333}
     <div class="disc">{{DISCLAIMER}}</div>
   </div>
   <div class="copy">© {{YEAR}} {{BRAND}}</div>
+  <div class="legal"><a href="https://{{STORE_DOMAIN}}/policies/privacy-policy">{{LINK_PRIVACY}}</a><a href="https://{{STORE_DOMAIN}}/policies/terms-of-service">{{LINK_TERMS}}</a><a href="https://{{STORE_DOMAIN}}/policies/shipping-policy">{{LINK_SHIPPING}}</a><a href="https://{{STORE_DOMAIN}}/policies/refund-policy">{{LINK_REFUND}}</a></div>
 </footer>
 
 <script>
